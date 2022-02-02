@@ -15,6 +15,11 @@ class Session {
         }
     }
 
+    /**
+     * Sends data to server when the socket is ready.
+     * @param {*} data 
+     * @returns boolean true if all data is flushed.
+     */
     send_data(data){
         console.log(this.#client_socket.connecting)
         try{
@@ -26,6 +31,10 @@ class Session {
         }
     }
 
+    /**
+     * receives data from server.
+     * @returns data
+     */
     recv_data(){
         try{
             this.#client_socket.on('data', (data) => {
@@ -36,6 +45,9 @@ class Session {
         }
     }
 
+    /**
+     * Closes the connection to the server.
+     */
     close_connection(){
         this.#client_socket.destroy();
     }
