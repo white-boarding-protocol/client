@@ -1,0 +1,23 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "Client side for whiteboard app",
+  "main": "client.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/white-boarding-protocol/client.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/white-boarding-protocol/client/issues"
+  },
+  "homepage": "https://github.com/white-boarding-protocol/client#readme",
+  "dependencies": {
+    "requirejs": "^2.3.6"
+  }
+}
