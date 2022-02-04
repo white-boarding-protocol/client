@@ -92,7 +92,9 @@ class Session {
     }
 
     /**
-     * receives data from server.
+     * Receives data from server.
+     * The function returns a promise instead of directly returning the value to avoid returning undefined when 
+     * the socket listener takes time to fetch data.
      * @returns a promise that might contain data received from socket listener.
      */
     recv_data() {
