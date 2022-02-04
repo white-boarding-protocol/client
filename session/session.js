@@ -10,6 +10,12 @@ class Session {
     #received_data;
     #data_available = false;
 
+    /**
+     * Creates a net socket and wraps it around tls using tls module. It needs tls.SecureContext from encryption layer.
+     * @param {*} ip_address Address to connect to
+     * @param {*} port_number Port number to connect to
+     * @param {*} ssl_context tls.SecureContext object that is passed to session layer from the encryption layer
+     */
     constructor(ip_address, port_number, ssl_context) {
         try{
             console.log("INFO: Client will attempt connection to ip: "+ip_address + ", port: " + port_number)
@@ -24,6 +30,7 @@ class Session {
                 secureContext: ssl_context
                 },
                 ()=>{
+                    // Must check if socket authorized manually.
                     console.log("INFO: Secure connection established with server.")
                     if(!this.#client_ssl_socket.authorized){
                         console.error("ERROR: Socket was not authorized, could not determine if the server certificate was signed by one of the specified CAs.");
