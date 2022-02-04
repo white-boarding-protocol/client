@@ -99,7 +99,7 @@ class Session {
      */
     recv_data() {
         return new Promise( (resolve, reject)=>{
-            // Wait 200 ms then try returning data received from socket listener.
+            // Wait 100 ms then try returning data received from socket listener.
             setTimeout(()=>{
                 // resolve data.
                 if(this.#data_available){
@@ -108,7 +108,7 @@ class Session {
                 }else{
                     reject("Error: promise timed out before receiving any data.");
                 }
-            }, 200)
+            }, 100)
         })
     }
 
