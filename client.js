@@ -1,21 +1,12 @@
 import Session from "./session/session.js";
-import net from "net";
+import tls from 'tls';
+import fs from 'fs';
 
-// THIS WORKS OK
-var sock = net.createConnection(5555, "127.0.0.1", function() {
-    console.log('Client Connected');
-});
-sock.addListener('data', (data) => {
-    console.log(data.toString());
-});
-//console.log(sock)
-sock.write("Hello Server!");
+// TODO: To be changed with enc layer functions to provide ssl context.
+var ssl_context = tls.createSecureContext({ca: [ fs.readFileSync('./cert/cert.pem') ]})
 
-
-// SESSION DOES NOT CONNECT NOT THROW AN ERROR, IT JUST STAYS PENDING ???
-/*
-var newSession = new Session("127.0.0.1", 5555);
-//console.log(newSession.recv_data());
-newSession.send_data("Hello server, This is client!");
-newSession.close_connection();
-*/
+var new_session = new Session("127.0.0.1", 5555, ssl_context);
+var data_from_server = await new_session.recv_data();
+console.log("From server: "+data_from_server.toString());
+new_session.send_data("Hello server, This is client!");
+new_session.close_connection();
