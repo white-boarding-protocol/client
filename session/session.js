@@ -10,22 +10,16 @@ class Session {
      * @param {*} port_number Port number to connect to
      * @param {*} ssl_context tls.SecureContext object that is passed to session layer from the encryption layer
      */
-    constructor(uri, ssl_context, on_message, on_open) {
+    constructor(uri, ssl_context, on_message, on_open, on_close) {
         try {
             console.log(`INFO: Client will attempt connection to ${uri}`)
 
             // Create client websocket.
             this.client_websocket = new WebSocket(uri, ssl_context);
 
-            this.client_websocket.addEventListener("message", ({data}) => {
-                console.log(data);
-                this.send_data({"message": "client"})
-            });
-            this.client_websocket.addEventListener("open", () => {
-            });
-            this.client_websocket.addEventListener("close", () => {
-                console.log("closed")
-            });
+            this.client_websocket.addEventListener("message", on_message);
+            this.client_websocket.addEventListener("open", on_open);
+            this.client_websocket.addEventListener("close", on_close);
             this.client_websocket.addEventListener("error", this.on_error);
 
         } catch (error) {

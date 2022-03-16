@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/white-boarding-protocol/client#readme",
   "dependencies": {
-    "requirejs": "^2.3.6"
+    "requirejs": "^2.3.6",
+    "ws": "^8.5.0"
   }
 }
