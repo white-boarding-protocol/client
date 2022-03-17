@@ -1,5 +1,6 @@
 import Session from "../session/session.js";
 import fs from 'fs';
+import Interface from "../interface/interface";
 
 class Whiteboarding {
     session;
@@ -8,18 +9,16 @@ class Whiteboarding {
     constructor(userID, uri, cert_path, on_close) {
 
         this.ssl_context = {ca: fs.readFileSync(cert_path)};
-
-
         this.session = null
         this.uri = uri
         this.on_close = on_close
         this.userID = userID;
-    }
+        this.userInterface = new Interface();
 
+    }
 
     async start() {
         this.session = new Session(this.uri, this.ssl_context, (e) => this.on_message(e), () => this.on_open(), this.on_close);
-        await new Promise(r => setTimeout(r, 3000));
     }
 
     async on_open(event) {
