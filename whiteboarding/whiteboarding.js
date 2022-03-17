@@ -13,10 +13,7 @@ class Whiteboarding {
         this.on_close = on_close
         this.userID = userID;
         this.storage = {
-            uuid: {
-                successMsg: "sd",
-                promi
-            }
+            uuid: Promise
         }
 
     }
