@@ -8,5 +8,9 @@ import Whiteboarding from './whiteboarding/whiteboarding.js';
 // Session layer
 //const new_session = new Session("wss://SEP:5555", ssl_context);
 
-const wb = new Whiteboarding("123", "wss://SEP:5555", './cert/cert.pem', ()=> {});
-wb.start()
+const wb = new Whiteboarding("123", "wss://SEP:5555", './cert/cert.pem', () => {
+});
+wb.start().then(() => {
+})
+
+

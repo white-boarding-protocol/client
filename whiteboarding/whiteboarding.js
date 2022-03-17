@@ -17,17 +17,17 @@ class Whiteboarding {
     }
 
 
-    start() {
-        this.session = new Session(this.uri, this.ssl_context, () => this.on_message(), () => this.on_open(), this.on_close);
+    async start() {
+        this.session = new Session(this.uri, this.ssl_context, (e) => this.on_message(e), () => this.on_open(), this.on_close);
+        await new Promise(r => setTimeout(r, 3000));
     }
 
     async on_open(event) {
         await this.session.client_websocket.send(JSON.stringify({"user_id": this.userID, "message": "hello"}));
-        console.log("done")
     }
 
-    async on_message(data) {
-        let data_obj = JSON.parse(data);
+    async on_message(event) {
+        let data_obj = JSON.parse(event.data);
         console.log(data_obj)
         // switch (data_obj.status) {
         //     case '300':
