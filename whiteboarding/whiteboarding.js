@@ -46,7 +46,12 @@ class Whiteboarding {
 
 
     async handle_user_events() {
-
+        // 100 for user connect
+        // 199 user disconnect
+        // 101 joined room
+        // 102 for join request is here for host
+        // 103 join request successfully sent
+        // 104 left room
     }
 
     async handle_host_events() {
