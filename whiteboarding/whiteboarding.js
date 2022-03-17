@@ -30,33 +30,47 @@ class Whiteboarding {
         let data_obj = JSON.parse(event.data);
         switch (data_obj.status[0]) {
             case '1':
-                await this.handle_user_events();
+                await this.handle_user_events(data_obj);
                 break;
             case '2':
                 await this.handle_host_events(data_obj);
                 break;
             case '3':
-                await this.handle_redistributed_events();
+                await this.handle_redistributed_events(data_obj);
                 break;
             case '4':
-                await this.handle_error();
+                await this.handle_error(data_obj);
                 break;
         }
     }
 
 
-    async handle_user_events() {
-        // 100 for user connect
-        // 199 user disconnect
-        // 101 joined room
-        // 102 for join request is here for host
-        // 103 join request successfully sent
-        // 104 left room
+    async handle_user_events(data_obj) {
+        switch (data_obj.status) {
+            case '100':
+                // for user connect
+                break;
+            case '199':
+                // user disconnect
+                break;
+            case '101':
+                // joined room
+                break;
+            case '102':
+                // for join request is here for host
+                break;
+            case '103':
+                // join request successfully sent
+                break;
+            case '104':
+                // left room
+                break;
+        }
     }
 
     async handle_host_events(data_obj) {
-        
-        switch(data_obj.status){
+
+        switch (data_obj.status) {
             case '201':
                 // create room 201
                 break;
@@ -68,15 +82,15 @@ class Whiteboarding {
                 break;
             case '200':
                 // end room 200
-                break;    
-        }        
+                break;
+        }
     }
 
-    async handle_redistributed_events() {
+    async handle_redistributed_events(data_obj) {
 
     }
 
-    async handle_error() {
+    async handle_error(data_obj) {
 
     }
 
