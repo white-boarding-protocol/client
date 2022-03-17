@@ -33,7 +33,7 @@ class Whiteboarding {
                 await this.handle_user_events();
                 break;
             case '2':
-                await this.handle_host_events();
+                await this.handle_host_events(data_obj);
                 break;
             case '3':
                 await this.handle_redistributed_events();
@@ -49,8 +49,22 @@ class Whiteboarding {
 
     }
 
-    async handle_host_events() {
-
+    async handle_host_events(data_obj) {
+        
+        switch(data_obj.status){
+            case '201':
+                // create room 201
+                break;
+            case '202':
+                // accept user 202
+                break;
+            case '203':
+                // decline user 203
+                break;
+            case '200':
+                // end room 200
+                break;    
+        }        
     }
 
     async handle_redistributed_events() {
