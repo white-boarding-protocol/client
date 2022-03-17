@@ -18,10 +18,7 @@ class Interface {
 
         let myFirstPromise = new Promise();
 
-        this.whiteboarding.storage[uuid] = {
-            promis: myFirstPromise,
-            msg: "success dude!"
-        }
+        this.whiteboarding.storage[uuid] = myFirstPromise;
         
         return myFirstPromise
     }
