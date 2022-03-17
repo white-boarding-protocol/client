@@ -1,19 +1,23 @@
 import Session from "../session/session.js";
-import fs from 'fs';
 import Interface from "../interface/interface";
 
 class Whiteboarding {
     session;
     userID;
 
-    constructor(userID, uri, cert_path, on_close) {
+    constructor(userID, uri, ssl_context, on_close) {
 
-        this.ssl_context = {ca: fs.readFileSync(cert_path)};
+        this.ssl_context = ssl_context
         this.session = null
         this.uri = uri
         this.on_close = on_close
         this.userID = userID;
-        this.userInterface = new Interface();
+        this.storage = {
+            uuid: {
+                successMsg: "sd",
+                promi
+            }
+        }
 
     }
 
@@ -29,6 +33,7 @@ class Whiteboarding {
         let data_obj = JSON.parse(event.data);
         switch (data_obj.status[0]) {
             case '1':
+                this.whiteboarding.storage[uuid].resolve("success")
                 await this.handle_user_events(data_obj);
                 break;
             case '2':
