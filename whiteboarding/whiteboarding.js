@@ -28,18 +28,37 @@ class Whiteboarding {
 
     async on_message(event) {
         let data_obj = JSON.parse(event.data);
-        console.log(data_obj)
-        // switch (data_obj.status) {
-        //     case '300':
-        //         //TODO:
-        //         const message = data_obj.message;
-        //     case '200':
-        //     //TODO:
-        //
-        //     case '403':
-        //     //TODO:
+        switch (data_obj.status[0]) {
+            case '1':
+                await this.handle_user_events();
+                break;
+            case '2':
+                await this.handle_host_events();
+                break;
+            case '3':
+                await this.handle_redistributed_events();
+                break;
+            case '4':
+                await this.handle_error();
+                break;
+        }
+    }
 
-        // }
+
+    async handle_user_events() {
+
+    }
+
+    async handle_host_events() {
+
+    }
+
+    async handle_redistributed_events() {
+
+    }
+
+    async handle_error() {
+
     }
 
 }
