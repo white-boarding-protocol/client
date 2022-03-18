@@ -1,5 +1,5 @@
 //import Session from "./session/session.js";
-import Whiteboarding from './whiteboarding/whiteboarding.js';
+import Interface from "./interface/interface.js";
 //import fs from 'fs';
 
 // TODO: Later to be replaced with enc layer function
@@ -8,9 +8,15 @@ import Whiteboarding from './whiteboarding/whiteboarding.js';
 // Session layer
 //const new_session = new Session("wss://SEP:5555", ssl_context);
 
-const wb = new Whiteboarding("123", "wss://SEP:5555", './cert/cert.pem', () => {
+const wb = new Interface("123", "wss://SEP:5555", './cert/cert.pem', () => {
 });
-wb.start().then(() => {
+wb.connect().then(() => {
+    console.log(wb.whiteboarding.isConnected)
+    wb.createRoom().then((e) => {
+        console.log(e)
+    })
 })
+
+
 
 
