@@ -44,6 +44,7 @@ class Whiteboarding {
     async on_message(event) {
         let data_obj = JSON.parse(event.data);
         console.log(data_obj)
+        // eslint-disable-next-line
         switch (data_obj.status) {
             case 200:
                 this.storage[data_obj.uuid].res(data_obj)

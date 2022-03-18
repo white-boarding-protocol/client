@@ -1,4 +1,3 @@
-import WebSocket from 'ws';
 
 class Session {
 
@@ -17,7 +16,10 @@ class Session {
             console.log(`INFO: Client will attempt connection to ${uri}`);
 
             // Create client websocket.
-            this.client_websocket = new WebSocket(uri, ssl_context);
+            this.client_websocket = new WebSocket(uri);
+            // Browser websocket does not have ssl_context
+            // We might have to add the cert to the browser manually
+            // That might work.
 
             this.client_websocket.addEventListener("message", on_message);
             this.client_websocket.addEventListener("open", on_open);
