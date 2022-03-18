@@ -183,6 +183,17 @@ class Interface {
 
         return this.whiteboarding.setPromise(uuid)
     }
+
+    async undo(){
+        await this.whiteboarding.sendData({
+            "type": 6,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 2,
+        });
+    }
 }
 
 export default Interface
