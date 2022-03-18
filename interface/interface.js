@@ -189,8 +189,8 @@ class Interface {
             "type": 6,
             "user_id": this.userID,
             "room_id": this.roomId,
-            "x_coordinate": x,
-            "y_coordinate": y,
+            "x_coordinate": undefined,
+            "y_coordinate": undefined,
             "action": 2,
         });
     }
