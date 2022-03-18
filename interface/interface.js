@@ -30,6 +30,7 @@ class Interface {
         });
 
         return this.whiteboarding.setPromise(uuid).then((msg) => {
+            console.log(this.roomId)
             this.roomId = msg.room_id
         })
     }
@@ -54,7 +55,7 @@ class Interface {
                 }
             }).then((msg) => {
                 //call the joined call back function
-                this.roomId = msg.roomId
+                this.roomId = msg.room_id
                 this.loadRoom(msg)
             }).catch((msg) => {
                 //call the declined call back function
