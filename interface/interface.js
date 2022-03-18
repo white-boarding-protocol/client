@@ -104,7 +104,7 @@ class Interface {
             "y_coordinate": y,
             "action": 0,
             "text": text,
-            "image": imageId
+            "image_id": imageId
 
         });
 
