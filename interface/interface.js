@@ -101,6 +101,20 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
+    async declineJoin(targetUserId){
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 5,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId,
+            "target_user_id": targetUserId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
 }
 
 export default Interface
