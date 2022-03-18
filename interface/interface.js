@@ -1,14 +1,16 @@
 import fs from "fs";
 import Whiteboarding from "../whiteboarding/whiteboarding.js";
 import {v4 as uuidv4} from 'uuid';
+import { ThrowStatement } from "requirejs";
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin) {
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, roomId) {
         this.userID = userID;
-        this.loadRoom = loadRoom
-        this.onRejectJoin = onRejectJoin()
+        this.loadRoom = loadRoom;
+        this.onRejectJoin = onRejectJoin();
         this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose());
+        this.roomId = roomId;
     }
 
     async connect() {
@@ -69,6 +71,34 @@ class Interface {
 
     async addImage() {
 
+    }
+
+    async leaveRoom() {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 2,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async endRoom(){
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 3,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
     }
 
 }
