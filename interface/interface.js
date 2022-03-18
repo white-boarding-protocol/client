@@ -58,18 +58,67 @@ class Interface {
         })
     }
 
-    async Draw() {
+    async Draw(x, y, color, tool, width) {
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "color": color,
+            "tool": tool,
+            "width": width
+
+        });
 
     }
 
-    async comment(text) {
+    async comment(x, y, text, imageId) {
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "text": text,
+            "image": imageId
+
+        });
 
     }
 
-    async addStickNote() {
+    async addStickNote(text, x, y) {
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "text": text,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0
+
+        });
+
     }
 
-    async addImage() {
+    async addImage(x, y, data, comments) {
+
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "data": data,
+            "comments": comments // list of ids.
+
+        });
 
     }
 
