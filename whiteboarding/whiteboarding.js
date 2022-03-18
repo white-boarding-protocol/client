@@ -29,17 +29,20 @@ class Whiteboarding {
     async on_message(event) {
         let data_obj = JSON.parse(event.data);
         console.log(data_obj)
-        // switch (data_obj.status) {
-        //     case '300':
-        //         //TODO:
-        //         const message = data_obj.message;
-        //     case '200':
-        //     //TODO:
-        //
-        //     case '403':
-        //     //TODO:
 
-        // }
+        switch (data_obj.status) {
+
+            case '300':
+                //TODO:
+                const message = data_obj.message;
+
+            case '200':
+                //TODO:
+
+            case '403':
+                //TODO:
+
+        }
     }
 
 }
