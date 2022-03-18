@@ -1,6 +1,7 @@
 import fs from "fs";
 import Whiteboarding from "../whiteboarding/whiteboarding.js";
 import {v4 as uuidv4} from 'uuid';
+import { ThrowStatement } from "requirejs";
 
 class Interface {
 
@@ -93,6 +94,48 @@ class Interface {
 
     }
 
+    async leaveRoom() {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 2,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async endRoom(){
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 3,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async declineJoin(targetUserId){
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 5,
+            "user_id": this.userID,
+            "uuid": uuid,
+            "room_id": this.roomId,
+            "target_user_id": targetUserId
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
 }
 
 export default Interface
