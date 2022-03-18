@@ -4,11 +4,14 @@ import {v4 as uuidv4} from 'uuid';
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin) {
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue) {
         this.userID = userID;
         this.loadRoom = loadRoom
         this.onRejectJoin = onRejectJoin()
-        this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose());
+        this.roomId = null;
+        this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose(),
+            (data) => onUserQueue(data));
+
     }
 
     async connect() {
@@ -25,7 +28,9 @@ class Interface {
             "uuid": uuid
         });
 
-        return this.whiteboarding.setPromise(uuid)
+        return this.whiteboarding.setPromise(uuid).then((msg) => {
+            this.roomId = msg.room_id
+        })
     }
 
 
@@ -48,12 +53,29 @@ class Interface {
                 }
             }).then((msg) => {
                 //call the joined call back function
+                this.roomId = msg.roomId
                 this.loadRoom(msg)
             }).catch((msg) => {
                 //call the declined call back function
                 this.onRejectJoin(msg)
             })
         })
+    }
+
+
+    async acceptUserJoinRequest(userId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 4,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "target_user_id": userId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
     }
 
     async Draw() {

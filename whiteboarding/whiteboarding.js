@@ -6,12 +6,13 @@ class Whiteboarding {
     session;
     userID;
 
-    constructor(userID, uri, ssl_context, on_close) {
+    constructor(userID, uri, sslContext, onClose, onUserQueue) {
 
-        this.ssl_context = ssl_context
+        this.sslContext = sslContext
+        this.onUserQueue = onUserQueue
         this.session = null
         this.uri = uri
-        this.on_close = on_close
+        this.onClose = onClose
         this.userID = userID;
         this.isConnected = false
         this.storage = {}
@@ -27,8 +28,8 @@ class Whiteboarding {
             this.errorMsg = reason
         })
 
-        this.session = new Session(this.uri, this.ssl_context, (e) => this.on_message(e),
-            () => this.on_open(uuid), this.on_close);
+        this.session = new Session(this.uri, this.sslContext, (e) => this.on_message(e),
+            () => this.on_open(uuid), this.onClose);
         return promise
     }
 
@@ -50,11 +51,12 @@ class Whiteboarding {
                 break;
             case 302:
                 // accepted to the room
-                this.pendingJoins[data_obj.room_id].res(data_obj.events)
+                this.pendingJoins[data_obj.room_id].res(data_obj)
                 delete this.pendingJoins[data_obj.room_id]
                 break;
             case 301:
-                // user in queue
+                //user in queue
+                this.onUserQueue(data_obj);
                 break;
             case 300:
                 //redist event
