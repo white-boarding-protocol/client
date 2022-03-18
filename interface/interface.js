@@ -4,10 +4,11 @@ import {v4 as uuidv4} from 'uuid';
 
 class Interface {
 
-    constructor(userID, uri, cert_path, on_close) {
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin) {
         this.userID = userID;
-        this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(cert_path)}, () => on_close());
-        this.errorMsg = null
+        this.loadRoom = loadRoom
+        this.onRejectJoin = onRejectJoin()
+        this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose());
     }
 
     async connect() {
@@ -17,19 +18,41 @@ class Interface {
     async createRoom() {
         let uuid = uuidv4();
 
-        await this.whiteboarding.session.client_websocket.send(JSON.stringify({
+        await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 0,
             "user_id": this.userID,
             "uuid": uuid
-        }));
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
 
 
-        return new Promise((resolve, reject) => {
-            this.whiteboarding.storage[uuid] = {
-                res: (msg) => resolve(msg),
-                rej: (msg) => reject(msg)
-            }
+    async requestJoinRoom(roomId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 1,
+            "room_event_type": 1,
+            "user_id": this.userID,
+            "room_id": roomId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid).then(() => {
+            new Promise((resolve, reject) => {
+                this.whiteboarding.pendingJoins[roomId] = {
+                    rej: (msg) => reject(msg),
+                    res: (msg) => resolve(msg),
+                }
+            }).then((msg) => {
+                //call the joined call back function
+                this.loadRoom(msg)
+            }).catch((msg) => {
+                //call the declined call back function
+                this.onRejectJoin(msg)
+            })
         })
     }
 
