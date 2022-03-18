@@ -19,9 +19,9 @@ const wb = new Interface("123", "wss://SEP:5555", './cert/cert.pem', () => {
 wb.connect().then(() => {
     console.log(wb.whiteboarding.isConnected)
     wb.requestJoinRoom("room_89bcfa74-a6a6-11ec-8477-acde48001122").then((msg) => {
-        console.log(msg)
+        console.log("accepted")
     }).catch((msg) => {
-        console.log(msg)
+        console.log("declined")
     })
 })
 
