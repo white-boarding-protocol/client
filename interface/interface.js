@@ -125,7 +125,7 @@ class Interface {
 
     }
 
-    async addImage(x, y, data, comments) {
+    async addImage(x, y, data) {
 
         await this.whiteboarding.sendData({
             "type": 4,
@@ -135,7 +135,6 @@ class Interface {
             "y_coordinate": y,
             "action": 0,
             "data": data,
-            "comments": comments // list of ids.
 
         });
 
