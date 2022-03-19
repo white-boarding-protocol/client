@@ -8,30 +8,7 @@ class Interface {
         this.loadRoom = loadRoom
         this.onRejectJoin = onRejectJoin()
         this.roomId = null;
-        this.whiteboarding = new Whiteboarding(userID, uri, {
-            // eslint-disable-next-line
-            ca: "-----BEGIN CERTIFICATE-----\
-        MIIDezCCAmOgAwIBAgIUD/CAMXv60OB/C0aQtUc6MlVz0Z0wDQYJKoZIhvcNAQEL\
-        BQAwTTELMAkGA1UEBhMCRkkxDjAMBgNVBAgMBUVTUE9PMQ4wDAYDVQQHDAVFU1BP\
-        TzEQMA4GA1UECgwHU0VQIExURDEMMAoGA1UEAwwDU0VQMB4XDTIyMDIwNDEzNTIz\
-        MVoXDTIzMDIwNDEzNTIzMVowTTELMAkGA1UEBhMCRkkxDjAMBgNVBAgMBUVTUE9P\
-        MQ4wDAYDVQQHDAVFU1BPTzEQMA4GA1UECgwHU0VQIExURDEMMAoGA1UEAwwDU0VQ\
-        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqXyiYWU70SzfzeAJn6GI\
-        cAdGWuMThUow45w8ReOFhhGf8Y2dcVWrNYr/466IaqRpPJQmW691HMw050IjhHwE\
-        HcMX67qVgQV79dfApBsiC1vt5NCbdUBMoBsDrv8wgAzcn9WNcnCoXw0fHcvwjyzH\
-        9prmNpCOHguzTaE01/BSpEYdxBtj3zangYAboSmqfKYOCoEK6/PUkpPu+1kYqDRy\
-        QOKshUkUVRrcPJ5PnwfOmeXO0iyzbjcOtPPDEqhPi5di6IzuntvoILFo2rHO/Tpp\
-        Go8ygBWYBfSAmY3yBxdns1ndhhkQWqtXAGNoqRIs7g+NYxz1Dt1kvjtyjemOjMM+\
-        6QIDAQABo1MwUTAdBgNVHQ4EFgQUyRp3n5mBcPMB38VT3chDkLlEazwwHwYDVR0j\
-        BBgwFoAUyRp3n5mBcPMB38VT3chDkLlEazwwDwYDVR0TAQH/BAUwAwEB/zANBgkq\
-        hkiG9w0BAQsFAAOCAQEARvhU+AQpSiZkqdQ/KF7SosPq9Z9a4GCMhQ/aeL+MTqb6\
-        9UglsfzWqkoqmpXqM1UTKRugnzuqbm3hfoQ6vlO/vtTGBfrFfp2BbNPQvn7jRrEY\
-        B3oInDFLwU06LVKWYOOyXyfjXgz3OMMB9IgCeMzgsDpDkeP8qYf1Ky0oLqP73Kx5\
-        pJmnWr5TaPjlPVTX+vBBZsYEnDeDcQyujEeb88usGSr39NAPh1Gd7fccg4aedsSQ\
-        5i3518P1BMEU+k3J3zzKJKTL0UCUVuXlf7HyYuE+WfptrBdAmIzaF0ws41C89T2W\
-        rf1ZTygDcHYRE0b7D0fwe7X5o/3x0uL9praftBWIZQ==\
-        -----END CERTIFICATE-----"
-    }, () => onClose(),
+        this.whiteboarding = new Whiteboarding(userID, uri, null, () => onClose(),
             (data) => onUserQueue(data));
 
     }
@@ -85,6 +62,21 @@ class Interface {
         })
     }
 
+    async Draw(x, y, color, tool, width) {
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "color": color,
+            "tool": tool,
+            "width": width
+
+        });
+    }
 
     async acceptUserJoinRequest(userId) {
         let uuid = uuidv4();
@@ -101,18 +93,49 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async Draw() {
+    async comment(x, y, text, imageId) {
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "text": text,
+            "image_id": imageId
+
+        });
 
     }
 
-    async comment(text) {
+    async addStickNote(text, x, y) {
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "text": text,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0
+
+        });
 
     }
 
-    async addStickNote() {
-    }
+    async addImage(x, y, data) {
 
-    async addImage() {
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "data": data,
+
+        });
 
     }
 
@@ -157,6 +180,17 @@ class Interface {
         });
 
         return this.whiteboarding.setPromise(uuid)
+    }
+
+    async undo(){
+        await this.whiteboarding.sendData({
+            "type": 6,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": undefined,
+            "y_coordinate": undefined,
+            "action": 2,
+        });
     }
 }
 

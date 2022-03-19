@@ -28,14 +28,14 @@ const wb = new Interface("150", "wss://SEP:5555", './cert/cert.pem', () => {
 
 wb.connect().then(() => {
     console.log(wb.whiteboarding.isConnected)
-    wb.requestJoinRoom("room_8271a968-a6ab-11ec-8631-acde48001122").then((msg) => {
+    wb.requestJoinRoom("room_09f2793a-a7ab-11ec-a05a-91d550d4e960").then((msg) => {
         console.log("accepted")
     }).catch((msg) => {
         console.log("declined")
     })
 })
 
-//
+
 // wb.connect().then(() => {
 //     console.log(wb.whiteboarding.isConnected)
 //     wb.createRoom().then((msg) => {
