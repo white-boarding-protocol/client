@@ -1,17 +1,16 @@
 import fs from "fs";
 import Whiteboarding from "../whiteboarding/whiteboarding.js";
 import {v4 as uuidv4} from 'uuid';
-import { ThrowStatement } from "requirejs";
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue) {
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue, onWhiteboardEvent) {
         this.userID = userID;
         this.loadRoom = loadRoom
         this.onRejectJoin = onRejectJoin()
         this.roomId = null;
         this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose(),
-            (data) => onUserQueue(data));
+            (data) => onUserQueue(data), (event) => onWhiteboardEvent(event));
 
     }
 
@@ -109,7 +108,7 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async endRoom(){
+    async endRoom() {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
@@ -123,7 +122,7 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async declineJoin(targetUserId){
+    async declineJoin(targetUserId) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
@@ -137,6 +136,8 @@ class Interface {
 
         return this.whiteboarding.setPromise(uuid)
     }
+
+
 }
 
 export default Interface
