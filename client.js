@@ -8,15 +8,38 @@ import Interface from "./interface/interface.js";
 // Session layer
 //const new_session = new Session("wss://SEP:5555", ssl_context);
 
-const wb = new Interface("123", "wss://SEP:5555", './cert/cert.pem', () => {
+const wb = new Interface("150", "wss://SEP:5555", './cert/cert.pem', () => {
+}, (msg) => {
+    console.log("loading room")
+    wb.leaveRoom().then(() => {
+        console.log("left room")
+    })
+}, (msg) => {
+    console.log("host declined")
+}, (msg) => {
+    wb.acceptUserJoinRequest(msg.user_id).then((msg) => {
+        console.log("accepted user request to join")
+    })
 });
+
+
 wb.connect().then(() => {
     console.log(wb.whiteboarding.isConnected)
-    wb.createRoom().then((e) => {
-        console.log(e)
+    wb.requestJoinRoom("room_8271a968-a6ab-11ec-8631-acde48001122").then((msg) => {
+        console.log("accepted")
+    }).catch((msg) => {
+        console.log("declined")
     })
 })
 
-
+//
+// wb.connect().then(() => {
+//     console.log(wb.whiteboarding.isConnected)
+//     wb.createRoom().then((msg) => {
+//         console.log(msg)
+//     }).catch((msg) => {
+//         console.log(msg)
+//     })
+// })
 
 

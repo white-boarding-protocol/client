@@ -6,35 +6,30 @@ class Whiteboarding {
     session;
     userID;
 
-    constructor(userID, uri, ssl_context, on_close) {
+    constructor(userID, uri, sslContext, onClose, onUserQueue) {
 
-        this.ssl_context = ssl_context
+        this.sslContext = sslContext
+        this.onUserQueue = onUserQueue
         this.session = null
         this.uri = uri
-        this.on_close = on_close
+        this.onClose = onClose
         this.userID = userID;
         this.isConnected = false
         this.storage = {}
+        this.pendingJoins = {}
     }
 
     async start() {
         let uuid = uuidv4()
-        let promise = new Promise((resolve, reject) => {
-            this.storage[uuid] = {
-                res: (msg) => resolve(msg),
-                rej: (msg) => reject(msg),
-                promise: null
-            }
-        }).then(() => {
+        let promise = this.setPromise(uuid).then(() => {
             this.isConnected = true
         }).catch((reason) => {
             this.isConnected = false
             this.errorMsg = reason
         })
 
-        this.storage[uuid].promise = promise
-        this.session = new Session(this.uri, this.ssl_context, (e) => this.on_message(e),
-            () => this.on_open(uuid), this.on_close);
+        this.session = new Session(this.uri, this.sslContext, (e) => this.on_message(e),
+            () => this.on_open(uuid), this.onClose);
         return promise
     }
 
@@ -52,10 +47,17 @@ class Whiteboarding {
 
         switch (data_obj.status) {
             case 200:
-                this.storage[data_obj.uuid].res(data_obj.message)
+                this.storage[data_obj.uuid].res(data_obj)
+                delete this.storage[data_obj.uuid]
+                break;
+            case 302:
+                // accepted to the room
+                this.pendingJoins[data_obj.room_id].res(data_obj)
+                delete this.pendingJoins[data_obj.room_id]
                 break;
             case 301:
-                // user in queue
+                //user in queue
+                this.onUserQueue(data_obj);
                 break;
             case 300:
                 //redist event
@@ -63,9 +65,16 @@ class Whiteboarding {
                 break;
             case 400:
                 this.storage[data_obj.uuid].rej(data_obj.message)
+                delete this.storage[data_obj.uuid]
+                break;
+            case 401:
+                //rejected to the room
+                this.pendingJoins[data_obj.room_id].rej(data_obj.message)
+                delete this.pendingJoins[data_obj.room_id]
                 break;
             case 403:
                 this.storage[data_obj.uuid].rej(data_obj.message)
+                delete this.storage[data_obj.uuid]
                 break;
         }
     }
@@ -77,6 +86,21 @@ class Whiteboarding {
 
     async handle_error(data_obj) {
 
+    }
+
+
+    setPromise(uuid) {
+        return new Promise((resolve, reject) => {
+            this.storage[uuid] = {
+                res: (msg) => resolve(msg),
+                rej: (msg) => reject(msg)
+            }
+        })
+    }
+
+
+    async sendData(data) {
+        await this.session.client_websocket.send(JSON.stringify(data))
     }
 
 }

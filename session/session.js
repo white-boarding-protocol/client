@@ -6,13 +6,15 @@ class Session {
 
     /**
      * Creates a net socket and wraps it around tls using tls module. It needs tls.SecureContext from encryption layer.
-     * @param {*} ip_address Address to connect to
-     * @param {*} port_number Port number to connect to
+     * @param uri
      * @param {*} ssl_context tls.SecureContext object that is passed to session layer from the encryption layer
+     * @param on_message
+     * @param on_open
+     * @param on_close
      */
     constructor(uri, ssl_context, on_message, on_open, on_close) {
         try {
-            console.log(`INFO: Client will attempt connection to ${uri}`)
+            console.log(`INFO: Client will attempt connection to ${uri}`);
 
             // Create client websocket.
             this.client_websocket = new WebSocket(uri, ssl_context);
@@ -27,18 +29,6 @@ class Session {
         }
     }
 
-    /**
-     * Sends data to server when the socket is ready.
-     * @param {*} data
-     * @returns boolean true if all data is flushed to kernel socket.
-     */
-    send_data(data) {
-        try {
-            return this.client_websocket.send(JSON.stringify(data))
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     /**
      * Closes the connection to the server.
