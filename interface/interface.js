@@ -64,6 +64,21 @@ class Interface {
         })
     }
 
+    async Draw(x, y, color, tool, width) {
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "color": color,
+            "tool": tool,
+            "width": width
+
+        });
+    }
 
     async acceptUserJoinRequest(userId) {
         let uuid = uuidv4();
@@ -80,18 +95,49 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async Draw() {
+    async comment(x, y, text, imageId) {
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "text": text,
+            "image_id": imageId
+
+        });
 
     }
 
-    async comment(text) {
+    async addStickNote(text, x, y) {
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "text": text,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0
+
+        });
 
     }
 
-    async addStickNote() {
-    }
+    async addImage(x, y, data) {
 
-    async addImage() {
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "data": data,
+
+        });
 
     }
 
@@ -136,6 +182,17 @@ class Interface {
         });
 
         return this.whiteboarding.setPromise(uuid)
+    }
+
+    async undo(){
+        await this.whiteboarding.sendData({
+            "type": 6,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": undefined,
+            "y_coordinate": undefined,
+            "action": 2,
+        });
     }
 }
 
