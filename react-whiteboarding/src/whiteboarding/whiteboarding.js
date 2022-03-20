@@ -6,10 +6,11 @@ class Whiteboarding {
     session;
     userID;
 
-    constructor(userID, uri, sslContext, onClose, onUserQueue) {
+    constructor(userID, uri, sslContext, onClose, onUserQueue, onNewMsg) {
 
         this.sslContext = sslContext
         this.onUserQueue = onUserQueue
+        this.onNewMsg = onNewMsg
         this.session = null
         this.uri = uri
         this.onClose = onClose
@@ -60,7 +61,7 @@ class Whiteboarding {
                 break;
             case 300:
                 //redist event
-                await this.handle_redistributed_events(data_obj);
+                await this.handle_redistributed_events(data_obj.event);
                 break;
             case 400:
                 this.storage[data_obj.uuid].rej(data_obj.message)
@@ -80,7 +81,7 @@ class Whiteboarding {
 
 
     async handle_redistributed_events(data_obj) {
-
+        this.onNewMsg(data_obj);
     }
 
     async handle_error(data_obj) {

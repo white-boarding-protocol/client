@@ -111,7 +111,8 @@ function App( ) {
                     console.log("Server responds reject join");
                     cbApprovalRequest(false, msg);
                 },
-                cbUserWantsToJoin
+                cbUserWantsToJoin,
+                cbNewEvents
             );
             serverConnection = new ServerConnection(serverInterface);
             serverInterface.connect().then(msg => {
@@ -120,6 +121,11 @@ function App( ) {
             setConnectServer(false);
         }
     })
+
+
+    const cbNewEvents = (data) => {
+        serverConnection.pushToUi(data)
+    }
 
     return (
     <div className="App">

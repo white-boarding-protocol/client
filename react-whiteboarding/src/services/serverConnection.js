@@ -67,9 +67,14 @@ class ServerConnection{
   }
 
   updateElement(element){
-    const event = this.parseElementToEvent(element, EventAction.CREATE);
-    console.log("updating element to server ...", element)
-    //todo: call server
+    const {type, x1, y1, extras} = element;
+    switch (type){
+      case "note":
+        this.interfaceObject.editStickNote(extras, x1, y1);
+        break;
+      case "image":
+        this.interfaceObject.editImage(x1, y1, extras);
+    }
   }
 
   remove(element){
@@ -86,7 +91,7 @@ class ServerConnection{
   /**
    * parse event json (server) to element json (client)
    */
-  parseEventToElement(event){
+  parseEventToElement = (event) => {
     const {event_id, x_coordinate, y_coordinate} = event;
     const element = {
       "event_id": event_id,
@@ -158,7 +163,6 @@ class ServerConnection{
         return null;
     }
   }
-
 }
 
 export default ServerConnection;

@@ -328,7 +328,7 @@ export default function Canvas(
                         const elementsCopy = [...elements];
                         elementsCopy[selectedItem.id] = selectedItem;
                         setElements(elementsCopy);
-                        serverConnection.postElement(selectedItem);
+                        serverConnection.updateElement(selectedItem);
                     }
                 }
                 setSelectedToDragElement(null);
