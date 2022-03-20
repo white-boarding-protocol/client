@@ -82,7 +82,7 @@ export default function Canvas(
 
         elements.forEach((elem) => {
             console.log(elem);
-            const { id, x1, y1, x2, y2, roughEle, type, extras } = elem;
+            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
             context.globalAlpha = "1";
             if (type === null) {
                 roughCanvas.draw(roughEle);
@@ -169,7 +169,7 @@ export default function Canvas(
                     } ).catch( err => {
                         console.log(err);
                     })
-                    onNewElementCreation(stickyNoteElem);
+
                 }
                 break;
 
