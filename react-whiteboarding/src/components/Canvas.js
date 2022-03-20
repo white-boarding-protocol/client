@@ -30,7 +30,6 @@ export default function Canvas(
     }
 ){
 
-    const [elements, setElements] = useState([]);
     const [isDrawing, setIsDrawing] = useState(false);
 
     const [points, setPoints] = useState([]);
@@ -306,7 +305,7 @@ export default function Canvas(
             context.fillText( commentText, x, y)
 
             imageElement.extras = newCanvas.toDataURL()
-            updateElementsStateArray(imageElement)
+            onElementUpdate(imageElement);
         };
         image.src = imageElement.extras;
     }
@@ -328,11 +327,6 @@ export default function Canvas(
         return null;
     }
 
-    const updateElementsStateArray = (updatedElement) => {
-        const elementsCopy = [...elements];
-        elementsCopy[updatedElement.id] = updatedElement;
-        setElements(elementsCopy);
-    }
 
     return (
         <div>
