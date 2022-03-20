@@ -6,7 +6,7 @@ class Interface {
     constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue) {
         this.userID = userID;
         this.loadRoom = loadRoom
-        this.onRejectJoin = onRejectJoin()
+        this.onRejectJoin = onRejectJoin
         this.roomId = null;
         this.whiteboarding = new Whiteboarding(userID, uri, null, () => onClose(),
             (data) => onUserQueue(data));

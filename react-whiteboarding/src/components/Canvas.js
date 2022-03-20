@@ -7,7 +7,9 @@ import React from "react";
  * @param queuedUsers all the users that are waiting in the queue
  * @param onUserApproval callback function to be called when user is approved or denied
  */
-export default function Canvas( {serverInterface, allEvents, queuedUsers, onUserApproval} ){
+export default function Canvas(
+    {serverInterface, allEvents, queuedUsers, onUserApproval, cbEndRoom}
+){
 
     return (
         <div>
