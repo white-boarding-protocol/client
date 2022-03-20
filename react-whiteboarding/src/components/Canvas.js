@@ -24,7 +24,7 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {serverConnection, queuedUsers, onUserApproval, cbEndRoom}
+    {roomId, serverConnection, queuedUsers, onUserApproval, cbEndRoom}
 ){
 
     const [elements, setElements] = useState([]);
@@ -395,6 +395,7 @@ export default function Canvas(
 
     return (
         <div>
+            Room Id: {roomId} <br/>
             <div>
                 <Swatch
                     setToolType={setToolType}

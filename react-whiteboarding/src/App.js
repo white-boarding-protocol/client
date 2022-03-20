@@ -126,6 +126,7 @@ function App( ) {
         {
             showCanvas ?
                 <Canvas
+                    roomId={serverInterface.roomId}
                     serverConnection={serverConnection}
                     queuedUsers={usersInQueue}
                     onUserApproval={userApprovalHandler}

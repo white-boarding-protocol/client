@@ -56,10 +56,14 @@ class ServerConnection{
    * @param element
    */
   postElement(element){
-    const event = this.parseElementToEvent(element, EventAction.CREATE);
-    console.log("posting element to server ...", element)
-    //todo: call server
-    //todo: set id from the promise
+    const {type, x1, y1, extras} = element;
+    switch (type){
+      case "note":
+        this.interfaceObject.addStickNote(extras, x1, y1);
+        break;
+      case "image":
+        this.interfaceObject.addImage(x1, y1, extras);
+    }
   }
 
   updateElement(element){
