@@ -1,17 +1,16 @@
 import fs from "fs";
 import Whiteboarding from "../whiteboarding/whiteboarding.js";
 import {v4 as uuidv4} from 'uuid';
-import { ThrowStatement } from "requirejs";
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue) {
-        this.userID = userID;
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue, onWhiteboardEvent) {
+        this.userId = userID;
         this.loadRoom = loadRoom
         this.onRejectJoin = onRejectJoin()
         this.roomId = null;
         this.whiteboarding = new Whiteboarding(userID, uri, {ca: fs.readFileSync(certPath)}, () => onClose(),
-            (data) => onUserQueue(data));
+            (data) => onUserQueue(data), (event) => onWhiteboardEvent(event));
 
     }
 
@@ -25,7 +24,7 @@ class Interface {
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 0,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "uuid": uuid
         });
 
@@ -42,7 +41,7 @@ class Interface {
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 1,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "room_id": roomId,
             "uuid": uuid
         });
@@ -64,6 +63,21 @@ class Interface {
         })
     }
 
+    async Draw(x, y, color, tool, width) {
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "color": color,
+            "tool": tool,
+            "width": width
+
+        });
+    }
 
     async acceptUserJoinRequest(userId) {
         let uuid = uuidv4();
@@ -71,7 +85,7 @@ class Interface {
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 4,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "room_id": this.roomId,
             "target_user_id": userId,
             "uuid": uuid
@@ -80,18 +94,49 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async Draw() {
+    async comment(x, y, text, imageId) {
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "text": text,
+            "image_id": imageId
+
+        });
 
     }
 
-    async comment(text) {
+    async addStickNote(text, x, y) {
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "text": text,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0
+
+        });
 
     }
 
-    async addStickNote() {
-    }
+    async addImage(x, y, data) {
 
-    async addImage() {
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "user_id": this.userID,
+            "room_id": this.roomId,
+            "x_coordinate": x,
+            "y_coordinate": y,
+            "action": 0,
+            "data": data,
+
+        });
 
     }
 
@@ -101,7 +146,7 @@ class Interface {
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 2,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "uuid": uuid,
             "room_id": this.roomId
         });
@@ -109,13 +154,13 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async endRoom(){
+    async endRoom() {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 3,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "uuid": uuid,
             "room_id": this.roomId
         });
@@ -123,19 +168,50 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async declineJoin(targetUserId){
+    async declineJoin(targetUserId) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
             "type": 1,
             "room_event_type": 5,
-            "user_id": this.userID,
+            "user_id": this.userId,
             "uuid": uuid,
             "room_id": this.roomId,
             "target_user_id": targetUserId
         });
 
         return this.whiteboarding.setPromise(uuid)
+    }
+
+    async removeStickNote(eventId) {
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "event_id": eventId,
+            "action": 2,
+            "user_id": this.userId,
+            "room_id": this.roomId
+        });
+    }
+
+    async editStickNote(eventId, newText, newXCoordinate, newYCoordinate) {
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "text": newText,
+            "x_coordinate": newXCoordinate,
+            "y_coordinate": newYCoordinate,
+            "action": 1,
+            "event_id": eventId,
+            "user_id": this.userId,
+            "room_id": this.roomId
+        });
+    }
+
+    async undo() {
+        await this.whiteboarding.sendData({
+            "type": 6,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+        });
     }
 }
 
