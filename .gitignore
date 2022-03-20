@@ -5,7 +5,9 @@
 /.pnp
 .pnp.js
 .vscode
-.idea
+.idea/
+/idea/
+react-whiteboarding/node_modules
 
 # testing
 /coverage
