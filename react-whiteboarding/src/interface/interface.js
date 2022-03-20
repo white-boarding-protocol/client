@@ -63,7 +63,7 @@ class Interface {
         })
     }
 
-    async Draw(coordinates, color, tool, width) {
+    async draw(coordinates, color, tool, width) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
@@ -76,6 +76,40 @@ class Interface {
             "color": color,
             "tool": tool,
             "width": width
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async editDraw(eventId, coordinates, color, tool, width) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "uuid": uuid,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "coordinates": coordinates,
+            "action": 1,
+            "event_id": eventId,
+            "color": color,
+            "tool": tool,
+            "width": width
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async removeDraw(eventId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 2,
+            "uuid": uuid,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "action": 2,
+            "event_id": eventId,
         });
 
         return this.whiteboarding.setPromise(uuid)
@@ -96,18 +130,48 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async comment(x, y, text, imageId) {
+    async addComment(text, imageId) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
             "type": 5,
             "user_id": this.userId,
             "room_id": this.roomId,
-            "x_coordinate": x,
-            "y_coordinate": y,
             "action": 0,
             "text": text,
             "image_id": imageId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+
+    async editComment(eventId, text) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "action": 1,
+            "text": text,
+            "event_id": eventId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async removeComment(eventId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 5,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "action": 2,
+            "event_id": eventId,
             "uuid": uuid
         });
 
@@ -131,6 +195,40 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
+    async removeStickNote(eventId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "event_id": eventId,
+            "action": 2,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async editStickNote(eventId, newText, newXCoordinate, newYCoordinate) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 3,
+            "text": newText,
+            "x_coordinate": newXCoordinate,
+            "y_coordinate": newYCoordinate,
+            "action": 1,
+            "event_id": eventId,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+
     async addImage(x, y, data) {
         let uuid = uuidv4();
 
@@ -142,6 +240,22 @@ class Interface {
             "y_coordinate": y,
             "action": 0,
             "data": data,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+
+    async removeImage(eventId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "event_id": eventId,
+            "action": 2,
+            "user_id": this.userId,
+            "room_id": this.roomId,
             "uuid": uuid
         });
 
@@ -191,38 +305,6 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async removeStickNote(eventId) {
-        let uuid = uuidv4();
-
-        await this.whiteboarding.sendData({
-            "type": 3,
-            "event_id": eventId,
-            "action": 2,
-            "user_id": this.userId,
-            "room_id": this.roomId,
-            "uuid": uuid
-        });
-
-        return this.whiteboarding.setPromise(uuid)
-    }
-
-    async editStickNote(eventId, newText, newXCoordinate, newYCoordinate) {
-        let uuid = uuidv4();
-
-        await this.whiteboarding.sendData({
-            "type": 3,
-            "text": newText,
-            "x_coordinate": newXCoordinate,
-            "y_coordinate": newYCoordinate,
-            "action": 1,
-            "event_id": eventId,
-            "user_id": this.userId,
-            "room_id": this.roomId,
-            "uuid": uuid
-        });
-
-        return this.whiteboarding.setPromise(uuid)
-    }
 
     async undo() {
         let uuid = uuidv4();
