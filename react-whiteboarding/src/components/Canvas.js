@@ -24,9 +24,8 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {serverConnection, allEvents, queuedUsers, onUserApproval, cbEndRoom}
+    {serverConnection, queuedUsers, onUserApproval, cbEndRoom}
 ){
-
 
     const [elements, setElements] = useState([]);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -38,6 +37,12 @@ export default function Canvas(
     const [toolType, setToolType] = useState("pencil");
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedToDragElement, setSelectedToDragElement] = useState(null);
+
+    if (queuedUsers.length >= 1){
+        const user = queuedUsers.pop();
+        let allow = window.confirm("User "+ user + " wants to join. Approve?");
+        onUserApproval(user, allow);
+    }
 
     useEffect(() => {
         const canvas = document.getElementById("canvas");

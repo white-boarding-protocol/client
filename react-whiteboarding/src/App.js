@@ -49,6 +49,7 @@ function App( ) {
     }
 
     const userApprovalHandler = (userId, approved) => {
+        setUsersInQueue( usersInQueue.filter( u => u !== userId ) )
         if (approved){
             serverInterface.acceptUserJoinRequest(userId).then((msg) => {
                 console.log("accepted user request to join")
@@ -58,7 +59,6 @@ function App( ) {
                 console.log("declined user request to join")
             })
         }
-        setUsersInQueue( usersInQueue.filter( u => u !== userId ) )
     }
 
     const endRoomHandler = () => {
@@ -93,6 +93,7 @@ function App( ) {
 
     const cbUserWantsToJoin = (msg) => {
         const {user_id} = msg;
+        console.log(user_id);
         setUsersInQueue((prevState) => [...prevState, user_id]);
     }
 
@@ -126,7 +127,6 @@ function App( ) {
             showCanvas ?
                 <Canvas
                     serverConnection={serverConnection}
-                    allEvents={previousEvents}
                     queuedUsers={usersInQueue}
                     onUserApproval={userApprovalHandler}
                     cbEndRoom={endRoomHandler}
