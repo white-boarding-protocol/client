@@ -104,7 +104,7 @@ const parseEventToElement = (event) => {
       return element;
 
     case 3: // sticky note
-      element.type = "image";
+      element.type = "note";
       element.extras = event.text;
       return element;
 
