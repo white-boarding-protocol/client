@@ -44,7 +44,10 @@ class Whiteboarding {
 
     async on_message(event) {
         let data_obj = JSON.parse(event.data);
-        console.log(data_obj)
+        // SEP !!! - DO NOT CHANGE THIS SHIT. THIS IS A FIX THAT WE IMPLEMENTED.
+        if (typeof data_obj === "string"){
+            data_obj = JSON.parse(data_obj);
+        }
         switch (data_obj.status) {
             case 200:
                 this.storage[data_obj.uuid].res(data_obj)

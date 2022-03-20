@@ -24,7 +24,7 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {   roomId, serverInterface,
+    {   roomId, userId, serverInterface,
         queuedUsers, elements,
         onUserApprovalHandler, onEndRoomHandler, onNewElementCreation, onElementUpdate, onElementRemove
     }
@@ -80,7 +80,9 @@ export default function Canvas(
         if (path !== undefined) drawpath();
 
 
-        elements.forEach(({ id, x1, y1, x2, y2, roughEle, type, extras }) => {
+        elements.forEach((elem) => {
+            console.log(elem);
+            const { id, x1, y1, x2, y2, roughEle, type, extras } = elem;
             context.globalAlpha = "1";
             if (type === null) {
                 roughCanvas.draw(roughEle);
@@ -135,7 +137,7 @@ export default function Canvas(
                     const imgEnc = 'data:image/gif;base64,'+base64EncImage;
                     const imgElem = createElement( elements.length, clientX, clientY, null, null, "image", imgEnc)
                     onNewElementCreation(imgElem);
-                    //todo: add element to server
+                    serverInterface.addImage(clientX, clientY, imgEnc)
                 });
                 break;
 
@@ -161,8 +163,12 @@ export default function Canvas(
                     var noteData = prompt("Enter the note data.")
                     if (noteData === null || noteData === "") return
                     // sticky note element
-                    const stickyNoteElem = createElement( elements.length, clientX, clientY, null, null, "note", noteData)
-                    //todo: add sticky note to server, update the uuid
+                    const stickyNoteElem = createElement( elements.length, clientX, clientY, null, null, "note", noteData);
+                    serverInterface.addStickNote(noteData, clientX, clientY).then( msg => {
+                        console.log(msg);
+                    } ).catch( err => {
+                        console.log(err);
+                    })
                     onNewElementCreation(stickyNoteElem);
                 }
                 break;
@@ -331,6 +337,7 @@ export default function Canvas(
     return (
         <div>
             Room Id: {roomId} <br/>
+            User Id: {userId} <br/>
             <div>
                 <Swatch
                     setToolType={setToolType}
