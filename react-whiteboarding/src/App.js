@@ -1,8 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
+import React from "react";
+import {useState} from "react";
 
+import Canvas from "./components/Canvas";
 //import Session from "./session/session.js";
 import Interface from "./interface/interface.js";
+import Dashboard from "./components/Dashboard";
 //import fs from 'fs';
 
 // TODO: Later to be replaced with enc layer function
@@ -46,22 +49,35 @@ wb.connect().then(() => {
 // })
 
 function App() {
-  return (
+
+    const [showCanvas, setShowCanvas] = useState(false);
+    const [displayForm, setDisplayForm] = useState(true);
+    const [message, setMessage] = useState("");
+    const [usersInQueue, setUsersInQueue] = useState([]);
+
+    const joinRoomHandler = (roomId) => {
+        //todo: join room here
+        setDisplayForm(false);
+        setMessage("Joining room " + roomId);
+    }
+
+    const createRoomHandler = () => {
+        //todo: create room here
+        setDisplayForm(false);
+        setMessage("Creating room...")
+    }
+
+    return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React ??
-        </a>
-      </header>
+        { showCanvas ?
+            <Canvas /> :
+            <Dashboard
+                joinBtnHandler={joinRoomHandler}
+                createBtnHandler={createRoomHandler}
+                displayForm={ displayForm }
+                message={message}
+            />
+        }
     </div>
   );
 }
