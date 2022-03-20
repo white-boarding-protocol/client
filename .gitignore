@@ -6,7 +6,6 @@
 .pnp.js
 .vscode
 .idea/
-/idea/
 react-whiteboarding/node_modules
 
 # testing
