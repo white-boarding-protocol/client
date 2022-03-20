@@ -166,10 +166,10 @@ function App( ) {
                     serverInterface={serverInterface}
                     queuedUsers={usersInQueue}
                     elements = {allElements}
-                    onUserApproval={onUserApprovalHandler}
-                    cbEndRoom={onEndRoomHandler}
-                    cbElementAddition = {onNewElementCreation}
-                    cbElementUpdate = {onElementUpdate}
+                    onUserApprovalHandler={onUserApprovalHandler}
+                    onEndRoomHandler={onEndRoomHandler}
+                    onNewElementCreation = {onNewElementCreation}
+                    onElementUpdate = {onElementUpdate}
                     cbElementRemove = {onElementRemove}
                 /> :
                 <Dashboard
