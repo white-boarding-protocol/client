@@ -12,7 +12,10 @@
     "web-vitals": "^2.1.4",
     "requirejs": "^2.3.6",
     "uuid": "^8.3.2",
-    "ws": "^8.5.0"
+    "ws": "^8.5.0",
+    "bootstrap": "^5.0.2",
+    "lodash": "^4.17.21",
+    "roughjs": "^4.4.1"
   },
   "scripts": {
     "start": "react-scripts start",

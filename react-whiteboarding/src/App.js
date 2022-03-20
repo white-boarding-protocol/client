@@ -6,9 +6,10 @@ import Canvas from "./components/Canvas";
 import Interface from "./interface/interface";
 import {v4 as uuidv4} from 'uuid';
 import Dashboard from "./components/Dashboard";
+import ServerConnection from "./services/serverConnection";
 
 
-
+let serverInterface = null;
 let serverConnection = null;
 
 function App( ) {
@@ -25,7 +26,7 @@ function App( ) {
         setDisplayForm(false);
         setMessage("Joining room " + roomId);
 
-        serverConnection.requestJoinRoom(roomId).then((msg) => {
+        serverInterface.requestJoinRoom(roomId).then((msg) => {
             console.log("Join room response: ", msg);
         }).catch((msg) => {
             console.log("declined")
@@ -36,9 +37,10 @@ function App( ) {
         setDisplayForm(false);
         setMessage("Creating room...")
 
-         serverConnection.createRoom().then((msg) => {
+         serverInterface.createRoom().then((msg) => {
              console.log("Create room response: ", msg);
              setShowCanvas(true);
+             serverConnection.setPreviousEvents([]);
          }).catch((msg) => {
              setMessage("Error creating room, " + msg);
              console.log(msg)
@@ -48,11 +50,11 @@ function App( ) {
 
     const userApprovalHandler = (userId, approved) => {
         if (approved){
-            serverConnection.acceptUserJoinRequest(userId).then((msg) => {
+            serverInterface.acceptUserJoinRequest(userId).then((msg) => {
                 console.log("accepted user request to join")
             })
         }else {
-            serverConnection.declineJoin(userId).then((msg) => {
+            serverInterface.declineJoin(userId).then((msg) => {
                 console.log("declined user request to join")
             })
         }
@@ -60,7 +62,7 @@ function App( ) {
     }
 
     const endRoomHandler = () => {
-        serverConnection.leaveRoom().then(() => {
+        serverInterface.leaveRoom().then(() => {
             console.log("user exited room");
             setMessage("Exited.");
         })
@@ -82,6 +84,7 @@ function App( ) {
             setPreviousEvents(events);
             setMessage("room joined. canvas should open");
             setShowCanvas(true);
+            serverConnection.setPreviousEvents(events);
         }else {
             console.log("host declined join request. ", message);
             setMessage("Host declined join request.");
@@ -94,9 +97,9 @@ function App( ) {
     }
 
     useEffect(() => {
-        if (connectServer || serverConnection === null){
+        if (connectServer || serverInterface === null){
             console.log("current user id ", currentUserId);
-            serverConnection = new Interface(
+            serverInterface = new Interface(
                 currentUserId, "wss://SEP:5555", './cert/cert.pem',
                 cbSocketHasBeenClosed,
                 (msg) => {
@@ -109,7 +112,8 @@ function App( ) {
                 },
                 cbUserWantsToJoin
             );
-            serverConnection.connect().then(msg => {
+            serverConnection = new ServerConnection(serverInterface);
+            serverInterface.connect().then(msg => {
                 console.log("Connection to server: ", msg);
             })
             setConnectServer(false);
@@ -121,7 +125,7 @@ function App( ) {
         {
             showCanvas ?
                 <Canvas
-                    serverInterface={serverConnection}
+                    serverConnection={serverConnection}
                     allEvents={previousEvents}
                     queuedUsers={usersInQueue}
                     onUserApproval={userApprovalHandler}
