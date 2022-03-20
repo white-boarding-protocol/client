@@ -24,7 +24,10 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {roomId, serverConnection, queuedUsers, onUserApproval, cbEndRoom}
+    {   roomId, serverInterface,
+        queuedUsers, elements,
+        onUserApprovalHandler, onEndRoomHandler, onNewElementCreation, onElementUpdate, onElementRemove
+    }
 ){
 
     const [elements, setElements] = useState([]);
@@ -41,7 +44,7 @@ export default function Canvas(
     if (queuedUsers.length >= 1){
         const user = queuedUsers.pop();
         let allow = window.confirm("User "+ user + " wants to join. Approve?");
-        onUserApproval(user, allow);
+        onUserApprovalHandler(user, allow);
     }
 
     useEffect(() => {
@@ -101,51 +104,12 @@ export default function Canvas(
             }
         })
 
-        serverConnection.setMessageHandler(onMessageHandler);
-
         return () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
         };
     }, [elements, path]);
 
 
-    const onMessageHandler = (receivedElement) => {
-        const {uuid} = receivedElement;
-
-        switch (receivedElement.action){
-
-            case EventAction.CREATE:
-            case EventAction.EDIT:
-                const duplicateElement = elements.filter( e =>
-                    e.uuid === uuid ||
-                    isEqual(omit(receivedElement, ['uuid', 'id']), omit(e, ['uuid', 'id']))
-                )
-                if ( duplicateElement) {
-                    receivedElement.id = duplicateElement.id;
-                    updateElementsStateArray(duplicateElement);
-                    return;
-                }
-                setElements((prevState) => [...prevState, receivedElement]);
-                break;
-
-            case EventAction.REMOVE:
-                const itemToErase = elements.filter( e =>
-                    e.uuid === uuid ||
-                    isEqual(omit(receivedElement, ['uuid', 'id']), omit(e, ['uuid', 'id']))
-                )
-                setElements( elements.filter( e => e.id !== itemToErase.id ) )
-                break;
-        }
-    }
-
-
-    const updateElement = (index, x1, y1, x2, y2, toolType) => {
-        const updatedElement = createElement(index, x1, y1, x2, y2, toolType);
-        const elementsCopy = [...elements];
-        elementsCopy[index] = updatedElement;
-        setElements(elementsCopy);
-        serverConnection.updateElement(updatedElement);
-    };
 
     const handleMouseDown = (e) => {
         console.log(toolType);
@@ -166,21 +130,13 @@ export default function Canvas(
                 context.beginPath();
                 break;
 
-            case "line":
-                setAction("drawing");
-                const element = createElement(id, clientX, clientY, clientX, clientY);
-                setElements((prevState) => [...prevState, element]);
-                setSelectedElement(element);
-                console.log(elements);
-                break;
-
             case "image":
                 setAction("uploading-image");
                 uploadImage( (base64EncImage) => {
                     const imgEnc = 'data:image/gif;base64,'+base64EncImage;
                     const imgElem = createElement( elements.length, clientX, clientY, null, null, "image", imgEnc)
-                    setElements((prevState) => [...prevState, imgElem]);
-                    serverConnection.postElement(imgElem)
+                    onNewElementCreation(imgElem);
+                    //todo: add element to server
                 });
                 break;
 
@@ -188,8 +144,8 @@ export default function Canvas(
                 setAction("erasing");
                 const itemToErase = fetchSelectedElement(clientX, clientY, elements)
                 if (itemToErase !== null){
-                    setElements( elements.filter( e => e.id !== itemToErase.id ) )
-                    serverConnection.remove(itemToErase)
+                    onElementRemove(itemToErase.event_id);
+                    //todo: remove element form server
                 }
                 break;
 
@@ -201,14 +157,14 @@ export default function Canvas(
                 if (underlyingImg !== null){ // this is a comment on the image
                     var commentData = prompt("Enter comment for this image")
                     addTextComment(underlyingImg, commentData, clientX, clientY);
-                }else{ // this is just a normal sticky not
+                }else{ // this is just a normal sticky note
                     // ask for note data to enter.
                     var noteData = prompt("Enter the note data.")
                     if (noteData === null || noteData === "") return
                     // sticky note element
                     const stickyNoteElem = createElement( elements.length, clientX, clientY, null, null, "note", noteData)
-                    setElements((prevState) => [...prevState, stickyNoteElem]);
-                    serverConnection.postElement(stickyNoteElem);
+                    //todo: add sticky note to server, update the uuid
+                    onNewElementCreation(stickyNoteElem);
                 }
                 break;
 
@@ -250,12 +206,6 @@ export default function Canvas(
                 context.stroke();
                 break;
 
-            case "drawing": // line tool
-                const index = elements.length - 1;
-                const { x1, y1 } = elements[index];
-                updateElement(index, x1, y1, clientX, clientY, toolType);
-                break;
-
             case "selection":
                 if (selectedElement !== null){
                     const {id, x1, y1, type, extras} = selectedElement
@@ -280,6 +230,10 @@ export default function Canvas(
 
     };
 
+    const findElement = event_id => {
+        return elements.filter( e => e.event_id === event_id )
+    }
+
     const handleMouseUp = (e) => {
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
@@ -288,19 +242,11 @@ export default function Canvas(
         switch (action){
 
             case "sketching": // pencil tool
-
                 context.closePath();
                 const element = points;
                 setPoints([]);
                 setPath((prevState) => [...prevState, element]); //tuple
                 setIsDrawing(false);
-                break;
-
-            case "drawing": // line tool
-                const index = selectedElement.id;
-                const { id, type, strokeWidth } = elements[index];
-                const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-                updateElement(id, x1, y1, x2, y2, type, strokeWidth);
                 break;
 
             case "erasing":
@@ -310,13 +256,11 @@ export default function Canvas(
             case "selection":
 
                 if (selectedToDragElement !== null){
-                    const {id, type, extras} = selectedToDragElement
+                    const {event_id, type, extras} = selectedToDragElement
                     if (type === "image" || type === "note"){
-                        const updatedElement = createElement(id, clientX, clientY, clientX, clientY, type, extras );
-                        const elementsCopy = [...elements];
-                        elementsCopy[id] = updatedElement;
-                        setElements(elementsCopy);
-                        serverConnection.updateElement(updatedElement);
+                        const updatedElement = createElement(event_id, clientX, clientY, clientX, clientY, type, extras );
+                        onElementUpdate(updatedElement);
+                        // todo: call server
                     }
                 }else if (action === "selection"){
                     const selectedItem = fetchSelectedElement(clientX, clientY, elements);
@@ -325,10 +269,8 @@ export default function Canvas(
                         var noteData = prompt("Update note data:", selectedItem.extras)
                         if (noteData === null) return
                         selectedItem.extras = noteData
-                        const elementsCopy = [...elements];
-                        elementsCopy[selectedItem.id] = selectedItem;
-                        setElements(elementsCopy);
-                        serverConnection.updateElement(selectedItem);
+                        onElementUpdate(selectedItem);
+                        // todo: call server
                     }
                 }
                 setSelectedToDragElement(null);
@@ -386,7 +328,6 @@ export default function Canvas(
         return null;
     }
 
-
     const updateElementsStateArray = (updatedElement) => {
         const elementsCopy = [...elements];
         elementsCopy[updatedElement.id] = updatedElement;
@@ -399,7 +340,7 @@ export default function Canvas(
             <div>
                 <Swatch
                     setToolType={setToolType}
-                    undoAction={() => serverConnection.postUndo()}
+                    undoAction={() => serverInterface.undo()}
                     downloadCanvas={downloadCanvas}
                 />
             </div>

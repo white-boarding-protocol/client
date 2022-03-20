@@ -3,14 +3,14 @@ import {v4 as uuidv4} from 'uuid';
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue, onNewMsgs) {
+    constructor(userID, uri, certPath, onClose, loadRoom, onRejectJoin, onUserQueue, onNewEvent, onRemoveEvent, onEditEvent) {
         this.userID = userID;
         this.loadRoom = loadRoom
         this.onRejectJoin = onRejectJoin
         this.roomId = null;
         this.whiteboarding = new Whiteboarding(userID, uri, null, () => onClose(),
             (data) => onUserQueue(data),
-            (data) => onNewMsgs(data)
+            (data) => onNewEvent(data)
         );
 
     }

@@ -83,4 +83,81 @@ const showEraser = (x, y, radius) => {
   requestAnimationFrame(showEraser)
 }
 
-export {createElement, midPointBtw, adjustElementCoordinates, uploadImage, downloadCanvas, clearCircle, showEraser}
+
+/**
+ * parse event json (server) to element json (client)
+ */
+const parseEventToElement = (event) => {
+  const {event_id, x_coordinate, y_coordinate} = event;
+  const element = {
+    "event_id": event_id,
+    "action": event.action,
+    "x1": x_coordinate,
+    "y1": y_coordinate,
+    "x2": x_coordinate,
+    "y2": y_coordinate
+  };
+  switch (event.type){
+    case 4: // image
+      element.type = "image";
+      element.extras = event.data;
+      return element;
+
+    case 3: // sticky note
+      element.type = "image";
+      element.extras = event.text;
+      return element;
+
+    case 2: // draw
+      element.type = "pencil";
+      element.extras = event.width;
+      return element;
+
+    case "comment":
+      return null;
+
+    default:
+      return null;
+  }
+}
+
+/**
+ * parse element json (client) to event json (server)
+ */
+const parseElementToEvent = (element, action) => {
+  const {event_id, x1, y1, type, extras} = element
+  const event = {
+    "user_id": this.userId,
+    "room_id": this.roomId,
+    "event_id": event_id,
+    "x_coordinate": x1,
+    "y_coordinate": y1,
+    "action": action
+  }
+  switch (type){
+    case "image": // image
+      event.type = 4;
+      event.data = extras;
+      return event;
+
+    case "note": // sticky note
+      event.type = 3;
+      event.text = extras;
+      return event;
+
+    case "pencil": // draw
+      event.type = 2;
+      event.color = "black";
+      event.tool = "pencil";
+      event.width = extras;
+      return event;
+
+    case "comment":
+      return null;
+
+    default:
+      return null;
+  }
+}
+
+export {createElement, midPointBtw, adjustElementCoordinates, uploadImage, downloadCanvas, clearCircle, showEraser, parseElementToEvent, parseEventToElement}

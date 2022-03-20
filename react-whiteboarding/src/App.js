@@ -6,11 +6,10 @@ import Canvas from "./components/Canvas";
 import Interface from "./interface/interface";
 import {v4 as uuidv4} from 'uuid';
 import Dashboard from "./components/Dashboard";
-import ServerConnection from "./services/serverConnection";
+import {parseEventToElement, parseElementToEvent} from "./components/canvasServiceUtils";
 
 
 let serverInterface = null;
-let serverConnection = null;
 
 function App( ) {
 
@@ -20,8 +19,9 @@ function App( ) {
     const [displayForm, setDisplayForm] = useState(true);
     const [message, setMessage] = useState("");
     const [usersInQueue, setUsersInQueue] = useState([]);
-    const [previousEvents, setPreviousEvents] = useState([]);
+    const [allElements, setAllElements] = useState([]);
 
+    // display form - join button handler
     const joinRoomHandler = (roomId) => {
         setDisplayForm(false);
         setMessage("Joining room " + roomId);
@@ -33,6 +33,7 @@ function App( ) {
         })
     }
 
+    // display form - create room button handler
     const createRoomHandler = () => {
         setDisplayForm(false);
         setMessage("Creating room...")
@@ -40,7 +41,7 @@ function App( ) {
          serverInterface.createRoom().then((msg) => {
              console.log("Create room response: ", msg);
              setShowCanvas(true);
-             serverConnection.setPreviousEvents([]);
+             setAllElements([])
          }).catch((msg) => {
              setMessage("Error creating room, " + msg);
              console.log(msg)
@@ -48,7 +49,53 @@ function App( ) {
 
     }
 
-    const userApprovalHandler = (userId, approved) => {
+    // interface - socket closed
+    const cbSocketHasBeenClosed = () => {
+        console.log("socket has been closed");
+        setMessage("Socket closed.");
+        setShowCanvas(false);
+        setDisplayForm(false);
+    }
+
+    // interface - join request approved or denied
+    const cbApprovalRequest = (approved, message) => {
+        const {events} = message;
+        if (approved){
+            events.forEach( e => cbNewEvents(e) );
+            console.log("host approved join request.", message);
+            setMessage("Host approved join request.");
+            setShowCanvas(true);
+        }else {
+            console.log("host declined join request. ", message);
+            setMessage("Host declined join request.");
+        }
+    }
+
+    // interface - user wants to join the room
+    const cbUserWantsToJoin = (msg) => {
+        const {user_id} = msg;
+        console.log(user_id);
+        setUsersInQueue((prevState) => [...prevState, user_id]);
+    }
+
+    // interface - new events received
+    const cbNewEvents = (event) => {
+        const element = parseEventToElement(event);
+        const duplicateElement = allElements.filter( e => e.event_id === element.event_id);
+        if (duplicateElement){
+            setAllElements( allElements.map( e => event.event_id === e.event_id ? element : e ) );
+        }else {
+            setAllElements((prevState) => [...prevState, element]);
+        }
+    }
+
+    // interface - events removed
+    const cbRemoveEvent = (event_id) => {
+        setAllElements( allElements.filter( e => e.event_id !== event_id ) );
+    }
+
+    // canvas - user approve or deny
+    const onUserApprovalHandler = (userId, approved) => {
         setUsersInQueue( usersInQueue.filter( u => u !== userId ) )
         if (approved){
             serverInterface.acceptUserJoinRequest(userId).then((msg) => {
@@ -61,40 +108,27 @@ function App( ) {
         }
     }
 
-    const endRoomHandler = () => {
+    // canvas - leave room button handler
+    const onEndRoomHandler = () => {
         serverInterface.leaveRoom().then(() => {
             console.log("user exited room");
             setMessage("Exited.");
         })
     }
 
-    const cbSocketHasBeenClosed = () => {
-        console.log("socket has been closed");
-        setMessage("Socket closed.");
-        setShowCanvas(false);
-        setDisplayForm(false);
+    // canvas - new element created
+    const onNewElementCreation = (element) => {
+        setAllElements((prevState) => [...prevState, element]);
     }
 
-
-    const cbApprovalRequest = (approved, message) => {
-        const {events} = message;
-        if (approved){
-            console.log("host approved join request.", message);
-            setMessage("Host approved join request.");
-            setPreviousEvents(events);
-            setMessage("room joined. canvas should open");
-            setShowCanvas(true);
-            serverConnection.setPreviousEvents(events);
-        }else {
-            console.log("host declined join request. ", message);
-            setMessage("Host declined join request.");
-        }
+    // canvas - element updated
+    const onElementUpdate = element => {
+        setAllElements( allElements.map( e => e.event_id === element.event_id ? element : e ) );
     }
 
-    const cbUserWantsToJoin = (msg) => {
-        const {user_id} = msg;
-        console.log(user_id);
-        setUsersInQueue((prevState) => [...prevState, user_id]);
+    // canvas - remove element
+    const onElementRemove = event_id => {
+        setAllElements( allElements.filter( e => e.event_id !== event_id ) );
     }
 
     useEffect(() => {
@@ -112,9 +146,10 @@ function App( ) {
                     cbApprovalRequest(false, msg);
                 },
                 cbUserWantsToJoin,
+                cbNewEvents,
+                cbRemoveEvent,
                 cbNewEvents
             );
-            serverConnection = new ServerConnection(serverInterface);
             serverInterface.connect().then(msg => {
                 console.log("Connection to server: ", msg);
             })
@@ -122,21 +157,20 @@ function App( ) {
         }
     })
 
-
-    const cbNewEvents = (data) => {
-        serverConnection.pushToUi(data)
-    }
-
     return (
     <div className="App">
         {
             showCanvas ?
                 <Canvas
                     roomId={serverInterface.roomId}
-                    serverConnection={serverConnection}
+                    serverInterface={serverInterface}
                     queuedUsers={usersInQueue}
-                    onUserApproval={userApprovalHandler}
-                    cbEndRoom={endRoomHandler}
+                    elements = {allElements}
+                    onUserApproval={onUserApprovalHandler}
+                    cbEndRoom={onEndRoomHandler}
+                    cbElementAddition = {onNewElementCreation}
+                    cbElementUpdate = {onElementUpdate}
+                    cbElementRemove = {onElementRemove}
                 /> :
                 <Dashboard
                     joinBtnHandler={joinRoomHandler}
