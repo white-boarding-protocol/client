@@ -116,7 +116,8 @@ export default function Canvas(
 
     const handleMouseDown = (e) => {
         console.log(toolType);
-        const { clientX, clientY } = e;
+        let { clientX, clientY } = e;
+        clientY = clientY - 50;
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
         const id = elements.length; // todo: generate element id properly
@@ -211,7 +212,8 @@ export default function Canvas(
 
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
-        const { clientX, clientY } = e;
+        let { clientX, clientY } = e;
+        clientY = clientY - 50;
 
         if (toolType === "erase"){
             //showEraser(clientX, clientY, 20);
@@ -258,8 +260,8 @@ export default function Canvas(
     const handleMouseUp = (e) => {
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
-        const { clientX, clientY } = e;
-
+        let { clientX, clientY } = e;
+        clientY = clientY - 50;
         switch (action){
 
             case "sketching": // pencil tool
