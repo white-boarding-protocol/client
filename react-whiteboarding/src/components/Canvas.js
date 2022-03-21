@@ -79,9 +79,8 @@ export default function Canvas(
 
         if (path !== undefined) drawpath();
 
-
+        console.log(elements);
         elements.forEach((elem) => {
-            console.log(elem);
             const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
             context.globalAlpha = "1";
             if (type === null) {
@@ -90,11 +89,11 @@ export default function Canvas(
                 if (extras !== null) {
                     var img = new Image();
                     img.onload = function() {
-                        context.drawImage(img, x1, y1, x2-x1, y2-y1);
+                        context.drawImage(img, x1, y1, x2, y2);
                         context.beginPath();
                         context.stroke();
                     };
-                    img.src = extras
+                    img.src = extras;
                 }
             }else if ( type === "note" ){
                 context.font = '20px serif';
@@ -136,8 +135,12 @@ export default function Canvas(
                 uploadImage( (base64EncImage) => {
                     const imgEnc = 'data:image/gif;base64,'+base64EncImage;
                     const imgElem = createElement( elements.length, clientX, clientY, null, null, "image", imgEnc)
-                    onNewElementCreation(imgElem);
-                    serverInterface.addImage(clientX, clientY, imgEnc)
+                    serverInterface.addImage(clientX, clientY, imgEnc).then( msg => {
+                        imgElem.event_id = msg.event.event_id;
+                        onNewElementCreation(imgElem);
+                    } ).catch( err => {
+                        console.log(err);
+                    })
                 });
                 break;
 
@@ -165,9 +168,10 @@ export default function Canvas(
                     // sticky note element
                     const stickyNoteElem = createElement( elements.length, clientX, clientY, null, null, "note", noteData);
                     serverInterface.addStickNote(noteData, clientX, clientY).then( msg => {
-                        console.log(msg);
+                        stickyNoteElem.event_id = msg.event.event_id;
+                        onNewElementCreation(stickyNoteElem);
                     } ).catch( err => {
-                        console.log(err);
+                        console.error(err);
                     })
 
                 }

@@ -5,8 +5,8 @@ function createElement(id, x1, y1, x2, y2, type, extras) {
   const roughEle = gen.line(x1, y1, x2, y2);
   if (type === "image" ){
     y1 = y1 - 30; // for some reason, elements are created at extra +30 y offset. this hacky fix is to mitigate that.
-    x2 = x1 + 150;
-    y2 = y1 + 150;
+    x2 = 150;
+    y2 = 150;
   }else if (type === "note"){
     y1 = y1 - 20; // for some reason, elements are created at extra +20 y offset. this hacky fix is to mitigate that.
     x2 = x1 + 20;

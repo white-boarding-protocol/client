@@ -82,7 +82,6 @@ function App( ) {
     const cbNewEvents = (event) => {
         console.log(event);
         if (event.event_id === null){
-            console.log("Event id = null. Aborting further steps.")
             return;
         }
         const element = parseEventToElement(event);
@@ -90,7 +89,7 @@ function App( ) {
         const duplicateElement = allElements.filter( e => e.event_id === element.event_id);
         if (duplicateElement.length > 0){
             console.log(duplicateElement);
-            setAllElements( allElements.map( e => event.event_id === e.event_id ? element : e ) );
+            setAllElements( allElements.filter( e => event.event_id === e.event_id ? element : e ) );
         }else {
             setAllElements((prevState) => [...prevState, element]);
             console.log(allElements);
