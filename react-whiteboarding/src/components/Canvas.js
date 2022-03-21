@@ -40,6 +40,8 @@ export default function Canvas(
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedToDragElement, setSelectedToDragElement] = useState(null);
 
+    const [userLeftRoom, setLeftRoom] = useState(false);
+
     if (queuedUsers.length >= 1){
         const user = queuedUsers.pop();
         let allow = window.confirm("User "+ user + " wants to join. Approve?");
@@ -338,6 +340,14 @@ export default function Canvas(
         return null;
     }
 
+    const handleLeaveRoom = () => {
+        serverInterface.leaveRoom().then(msg => {
+            setLeftRoom(true);
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
 
     return (
         <div>
@@ -348,6 +358,8 @@ export default function Canvas(
                     setToolType={setToolType}
                     undoAction={() => serverInterface.undo()}
                     downloadCanvas={downloadCanvas}
+                    userLeftRoom = {userLeftRoom}
+                    leaveRoom={ handleLeaveRoom }
                 />
             </div>
             <canvas id="canvas" className="App"
