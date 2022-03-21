@@ -397,7 +397,11 @@ export default function Canvas(
                 <Swatch
                     isHost = {isHost}
                     setToolType={setToolType}
-                    undoAction={() => serverInterface.undo()}
+                    undoAction={ () =>
+                        serverInterface.undo().then(msg => {
+                            onElementRemove(msg.event.last_event_id);
+                        }).catch(err => { console.log(err); } )
+                    }
                     downloadCanvas={downloadCanvas}
                     userLeftRoom = {userLeftRoom || roomEnded}
                     message = { roomEnded ? "Server ended the room." : "You are no longer in the room." }
