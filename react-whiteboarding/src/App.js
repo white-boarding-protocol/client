@@ -85,7 +85,7 @@ function App( ) {
 
     // interface - events received
     const cbWhiteboardEvent = (event) => {
-        console.log(allElements)
+        console.log(event)
         switch (event.type) {
             case 1: // room events
                 if (event.room_event_type === 3) { // host ended room

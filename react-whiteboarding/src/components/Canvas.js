@@ -295,7 +295,12 @@ export default function Canvas(
                                 serverInterface.editStickNote(event_id, extras, clientX, clientY);
                                 break;
                             case "image":
-                                serverInterface.editImage(event_id, clientX, clientY, y2, x2);
+                                console.log("updating image : ", event_id);
+                                serverInterface.editImage(event_id, clientX, clientY, y2, x2).then(msg => {
+                                    console.log(msg)
+                                }).catch(err => {
+                                    console.error(err)
+                                })
                                 break;
                         }
                     }
