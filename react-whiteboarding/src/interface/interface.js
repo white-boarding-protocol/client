@@ -13,6 +13,9 @@ class Interface {
             (event) => onWhiteboardEvent(event)
         );
 
+        setInterval(async () => {
+            await this.whiteboarding.sendData({"user_id": this.userId, "type": 8});
+        }, 30 * 1000);
     }
 
     async connect() {
