@@ -24,7 +24,8 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {   roomId, userId, serverInterface,
+    {   roomId, userId, isHost, roomEnded,
+        serverInterface,
         queuedUsers, elements,
         onUserApprovalHandler, onEndRoomHandler, onNewElementCreation, onElementUpdate, onElementRemove
     }
@@ -40,6 +41,8 @@ export default function Canvas(
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedToDragElement, setSelectedToDragElement] = useState(null);
 
+    const [userLeftRoom, setLeftRoom] = useState(false);
+
     if (queuedUsers.length >= 1){
         const user = queuedUsers.pop();
         let allow = window.confirm("User "+ user + " wants to join. Approve?");
@@ -54,8 +57,37 @@ export default function Canvas(
 
         context.save();
 
+        console.log(elements);
+        const allPaths = []
+        elements.forEach((elem) => {
+            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
+            context.globalAlpha = "1";
+            if (type === null) {
+                roughCanvas.draw(roughEle);
+            }else if ( type === "image" ){
+                if (extras !== null) {
+                    var img = new Image();
+                    img.onload = function() {
+                        context.drawImage(img, x1, y1, x2, y2);
+                        context.beginPath();
+                        context.stroke();
+                    };
+                    img.src = extras;
+                }
+            }else if ( type === "note" ){
+                context.font = '20px serif';
+                context.fillText( extras, x1, y1)
+            }else if (type === "pencil"){
+                const stroke = []
+                elem.extras.map( point => {
+                    stroke.push( {clientX: point[0], clientY: point[1], transparency: "1"} )
+                })
+                allPaths.push(stroke);
+            }
+        })
+
         const drawpath = () => {
-            path.forEach((stroke, index) => {
+            allPaths.forEach((stroke, index) => {
                 context.beginPath();
 
                 stroke.forEach((point, i) => {
@@ -79,31 +111,6 @@ export default function Canvas(
 
         if (path !== undefined) drawpath();
 
-        console.log(elements);
-        elements.forEach((elem) => {
-            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
-            context.globalAlpha = "1";
-            if (type === null) {
-                roughCanvas.draw(roughEle);
-            }else if ( type === "image" ){
-                if (extras !== null) {
-                    var img = new Image();
-                    img.onload = function() {
-                        context.drawImage(img, x1, y1, x2, y2);
-                        context.beginPath();
-                        context.stroke();
-                    };
-                    img.src = extras;
-                }
-            }else if ( type === "note" ){
-                context.font = '20px serif';
-                context.fillText( extras, x1, y1)
-            }else if (type === "pencil"){
-                //todo: implement
-                console.log("to be implemented")
-            }
-        })
-
         return () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
         };
@@ -123,8 +130,8 @@ export default function Canvas(
                 setAction("sketching");
                 setIsDrawing(true);
                 const transparency = "1.0";
-                const newEle = { clientX, clientY, transparency, };
-                setPoints((state) => [...state, newEle]);
+                const newPoint = { clientX, clientY, transparency, };
+                setPoints((state) => [...state, newPoint]);
                 context.lineCap = 5;
                 context.moveTo(clientX, clientY);
                 context.beginPath();
@@ -208,8 +215,8 @@ export default function Canvas(
             case "sketching": // pencil tool
                 if (!isDrawing) return;
                 const transparency = points[points.length - 1].transparency;
-                const newEle = { clientX, clientY, transparency };
-                setPoints((state) => [...state, newEle]);
+                const newPoint = { clientX, clientY, transparency };
+                setPoints((state) => [...state, newPoint]);
                 var midPoint = midPointBtw(clientX, clientY);
                 context.quadraticCurveTo(clientX, clientY, midPoint.x, midPoint.y);
                 context.lineTo(clientX, clientY);
@@ -218,12 +225,9 @@ export default function Canvas(
 
             case "selection":
                 if (selectedElement !== null){
-                    const {id, x1, y1, type, extras} = selectedElement
+                    const {type} = selectedElement
                     if (type === "image" || type === "note"){
                         setSelectedToDragElement(selectedElement);
-                        if ( Math.abs(clientX-x1) <= 20 && Math.abs(clientY-y1) <= 20 ){
-                            return;
-                        }
                     }
                 }
                 break;
@@ -253,9 +257,15 @@ export default function Canvas(
 
             case "sketching": // pencil tool
                 context.closePath();
-                const element = points;
+                const listOfPoints = points.map( p => [p.clientX, p.clientY] );
+                console.log(listOfPoints);
+                serverInterface.draw(listOfPoints, null, null, null).then(msg => {
+                    const strokeElem = createElement( msg.event.event_id, clientX, clientY, null, null, "pencil", listOfPoints);
+                    onNewElementCreation(strokeElem);
+                }).catch(err => {
+                    console.error(err);
+                })
                 setPoints([]);
-                setPath((prevState) => [...prevState, element]); //tuple
                 setIsDrawing(false);
                 break;
 
@@ -264,13 +274,19 @@ export default function Canvas(
                 break;
 
             case "selection":
-
                 if (selectedToDragElement !== null){
-                    const {event_id, type, extras} = selectedToDragElement
+                    const {event_id, type, extras, x2, y2} = selectedToDragElement
                     if (type === "image" || type === "note"){
-                        const updatedElement = createElement(event_id, clientX, clientY, clientX, clientY, type, extras );
+                        const updatedElement = createElement(null, clientX, clientY, x2, y2, type, extras, event_id);
                         onElementUpdate(updatedElement);
-                        // todo: call server
+                        switch (type){
+                            case "note":
+                                serverInterface.editStickNote(event_id, extras, clientX, clientY);
+                                break;
+                            case "image":
+                                serverInterface.editImage(event_id, clientX, clientY, extras, y2, x2);
+                                break;
+                        }
                     }
                 }else if (action === "selection"){
                     const selectedItem = fetchSelectedElement(clientX, clientY, elements);
@@ -330,12 +346,30 @@ export default function Canvas(
         for(let i = elements.length - 1; i >= 0; i--){
             const element = elements[i];
             const { x1, y1, x2, y2, type } = element;
-            if ( clickX >= x1 && clickX <= x2 && clickY >=y1 && clickY <= y2 ){
-                if ( filterType === null || filterType === type)
+            if ( clickX >= x1 && clickX <= (x1+x2) && clickY >=y1 && clickY <= (y1+y2) ){
+                if ( filterType === null || filterType === type) {
                     return element;
+                }
             }
         }
         return null;
+    }
+
+    const handleLeaveRoom = () => {
+        if (isHost){
+            serverInterface.endRoom().then(msg => {
+                setLeftRoom(true);
+            }).catch(err => {
+                console.log(err);
+            })
+        }else {
+            serverInterface.leaveRoom().then(msg => {
+                setLeftRoom(true);
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+
     }
 
 
@@ -345,9 +379,13 @@ export default function Canvas(
             User Id: {userId} <br/>
             <div>
                 <Swatch
+                    isHost = {isHost}
                     setToolType={setToolType}
                     undoAction={() => serverInterface.undo()}
                     downloadCanvas={downloadCanvas}
+                    userLeftRoom = {userLeftRoom || roomEnded}
+                    message = { roomEnded ? "Server ended the room." : "You are no longer in the room." }
+                    leaveRoom={ handleLeaveRoom }
                 />
             </div>
             <canvas id="canvas" className="App"

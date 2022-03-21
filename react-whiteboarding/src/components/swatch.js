@@ -1,6 +1,20 @@
 import React from "react";
 
-export default function Swatch({ setToolType, undoAction, downloadCanvas, leaveRoom }) {
+export default function Swatch({ isHost, setToolType, undoAction, downloadCanvas, userLeftRoom, leaveRoom, message }) {
+
+  if (userLeftRoom){
+    return (
+        <div>
+          <br />
+          <br />
+          {message} <br />
+          <button title="Download this canvas as Image" onClick={() => { downloadCanvas(); }}>
+            Download as Image
+          </button>
+        </div>
+    );
+  }
+
   return (
     <div>
       <div className="row">
@@ -34,6 +48,19 @@ export default function Swatch({ setToolType, undoAction, downloadCanvas, leaveR
             <button title="Download as Image" onClick={() => { downloadCanvas(); }}>
               Download as Image
             </button>
+
+
+            {
+              isHost ?
+                  <button title="End Room" onClick={() => { leaveRoom(); }}>
+                    End Room
+                  </button> :
+                  <button title="Leave Room" onClick={() => { leaveRoom(); }}>
+                    Leave Room
+                  </button>
+            }
+
+
 
           </div>
         </div>

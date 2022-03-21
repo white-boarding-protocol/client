@@ -20,6 +20,8 @@ function App( ) {
     const [message, setMessage] = useState("");
     const [usersInQueue, setUsersInQueue] = useState([]);
     const [allElements, setAllElements] = useState([]);
+    const [isHost, setIsHost] = useState(false);
+    const [roomEnded, setRoomEnded] = useState(false);
 
     // display form - join button handler
     const joinRoomHandler = (roomId) => {
@@ -41,6 +43,7 @@ function App( ) {
          serverInterface.createRoom().then((msg) => {
              console.log("Create room response: ", msg);
              setShowCanvas(true);
+             setIsHost(true);
              setAllElements([])
          }).catch((msg) => {
              setMessage("Error creating room, " + msg);
@@ -61,7 +64,7 @@ function App( ) {
     const cbApprovalRequest = (approved, message) => {
         const {events} = message;
         if (approved){
-            events.forEach( e => cbNewEvents(e) );
+            events.forEach( e => onNewElementCreation(e) );
             console.log("host approved join request.", message);
             setMessage("Host approved join request.");
             setShowCanvas(true);
@@ -80,18 +83,26 @@ function App( ) {
 
     // interface - events received
     const cbWhiteboardEvent = (event) => {
-        console.log(event);
+        switch (event.type) {
+            case 1: // room events
+                if (event.room_event_type === 3) { // host ended room
+                    setRoomEnded(true);
+                }else if (event.room_event_type === 2){ // specific user left the room
+                    // user id = event.user_id;
+                    // yet to implement
+                }
+                break;
+        }
         if (event.event_id === null){
             return;
         }
         const element = parseEventToElement(event);
-
         switch (event.action){
             case 0: // create
                 onNewElementAddition(element);
                 break;
             case 1: // edit
-                onNewElementAddition(element);
+                onElementUpdate(element);
                 break;
             case 2: // delete
                 onElementRemoval(element.event_id);
@@ -100,10 +111,10 @@ function App( ) {
     }
 
     const onNewElementAddition = (element) => {
-        const duplicateElement = allElements.filter( e => e.event_id === element.event_id);
+        const duplicateElement = allElements.filter( e => e.event_id === element.event_id  || e.id === element.event_id );
         if (duplicateElement.length > 0){
             console.log(duplicateElement);
-            setAllElements( allElements.filter( e => element.event_id === e.event_id ? element : e ) );
+            setAllElements( allElements.filter( e => element.event_id === e.event_id  || e.id === element.event_id ? element : e ) );
         }else {
             setAllElements((prevState) => [...prevState, element]);
             console.log(allElements);
@@ -111,7 +122,7 @@ function App( ) {
     }
 
     const onElementRemoval = (event_id) => {
-        setAllElements( allElements.filter( e => e.event_id !== event_id ) );
+        setAllElements( allElements.filter( e => e.event_id !== event_id || e.id !== event_id ) );
     }
 
     // canvas - user approve or deny
@@ -141,9 +152,21 @@ function App( ) {
         setAllElements((prevState) => [...prevState, element]);
     }
 
-    // canvas - element updated
+    // canvas / interface - element updated
     const onElementUpdate = element => {
-        setAllElements( allElements.map( e => e.event_id === element.event_id ? element : e ) );
+        const updateList = []
+        console.log(allElements)
+        allElements.forEach( e => {
+            if (e.event_id === element.event_id){
+                updateList.push(element);
+            }else {
+                updateList.push(e);
+            }
+        })
+        if (updateList.length <= 0){
+            updateList.push(element);
+        }
+        setAllElements(updateList);
     }
 
     // canvas - remove element
@@ -184,6 +207,8 @@ function App( ) {
                 <Canvas
                     roomId={serverInterface.roomId}
                     userId={currentUserId}
+                    isHost = {isHost}
+                    roomEnded = {roomEnded}
                     serverInterface={serverInterface}
                     queuedUsers={usersInQueue}
                     elements = {allElements}

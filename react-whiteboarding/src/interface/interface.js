@@ -67,6 +67,7 @@ class Interface {
         })
     }
 
+    // draw([[1,2], [3,4]…], null, null, null)
     async draw(coordinates, color, tool, width) {
         let uuid = uuidv4();
 
@@ -262,6 +263,26 @@ class Interface {
             "action": 2,
             "user_id": this.userId,
             "room_id": this.roomId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
+    async editImage(eventId, newX, newY, data, height, width) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "event_id": eventId,
+            "action": 1,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "x_coordinate": newX,
+            "y_coordinate": newY,
+            "height": height,
+            "width": width,
+            "data": data,
             "uuid": uuid
         });
 
