@@ -20,6 +20,8 @@ function App( ) {
     const [message, setMessage] = useState("");
     const [usersInQueue, setUsersInQueue] = useState([]);
     const [allElements, setAllElements] = useState([]);
+    const [isHost, setIsHost] = useState(false);
+    const [roomEnded, setRoomEnded] = useState(false);
 
     // display form - join button handler
     const joinRoomHandler = (roomId) => {
@@ -41,6 +43,7 @@ function App( ) {
          serverInterface.createRoom().then((msg) => {
              console.log("Create room response: ", msg);
              setShowCanvas(true);
+             setIsHost(true);
              setAllElements([])
          }).catch((msg) => {
              setMessage("Error creating room, " + msg);
@@ -81,6 +84,16 @@ function App( ) {
     // interface - events received
     const cbWhiteboardEvent = (event) => {
         console.log(event);
+        switch (event.type) {
+            case 1: // room events
+                if (event.room_event_type === 3) { // host ended room
+                    setRoomEnded(true);
+                }else if (event.room_event_type === 2){ // specific user left the room
+                    // user id = event.user_id;
+                    // yet to implement
+                }
+                break;
+        }
         if (event.event_id === null){
             return;
         }
@@ -184,6 +197,8 @@ function App( ) {
                 <Canvas
                     roomId={serverInterface.roomId}
                     userId={currentUserId}
+                    isHost = {isHost}
+                    roomEnded = {roomEnded}
                     serverInterface={serverInterface}
                     queuedUsers={usersInQueue}
                     elements = {allElements}

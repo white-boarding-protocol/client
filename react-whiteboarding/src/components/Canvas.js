@@ -24,7 +24,8 @@ const gen = rough.generator();
  * @param onUserApproval callback function to be called when user is approved or denied
  */
 export default function Canvas(
-    {   roomId, userId, serverInterface,
+    {   roomId, userId, isHost, roomEnded,
+        serverInterface,
         queuedUsers, elements,
         onUserApprovalHandler, onEndRoomHandler, onNewElementCreation, onElementUpdate, onElementRemove
     }
@@ -341,11 +342,20 @@ export default function Canvas(
     }
 
     const handleLeaveRoom = () => {
-        serverInterface.leaveRoom().then(msg => {
-            setLeftRoom(true);
-        }).catch(err => {
-            console.log(err);
-        });
+        if (isHost){
+            serverInterface.endRoom().then(msg => {
+                setLeftRoom(true);
+            }).catch(err => {
+                console.log(err);
+            })
+        }else {
+            serverInterface.leaveRoom().then(msg => {
+                setLeftRoom(true);
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+
     }
 
 
@@ -355,10 +365,12 @@ export default function Canvas(
             User Id: {userId} <br/>
             <div>
                 <Swatch
+                    isHost = {isHost}
                     setToolType={setToolType}
                     undoAction={() => serverInterface.undo()}
                     downloadCanvas={downloadCanvas}
-                    userLeftRoom = {userLeftRoom}
+                    userLeftRoom = {userLeftRoom || roomEnded}
+                    message = { roomEnded ? "Server ended the room." : "You are no longer in the room." }
                     leaveRoom={ handleLeaveRoom }
                 />
             </div>
