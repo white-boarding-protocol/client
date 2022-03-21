@@ -266,6 +266,21 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
+    async editImage(eventId) {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "type": 4,
+            "event_id": eventId,
+            "action": 1,
+            "user_id": this.userId,
+            "room_id": this.roomId,
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
+
     async leaveRoom() {
         let uuid = uuidv4();
 
