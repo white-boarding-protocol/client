@@ -95,6 +95,9 @@ function App( ) {
                     // yet to implement
                 }
                 break;
+            case 6:
+                setDeletedEventIds(prevState => [...prevState, event.last_event_id])
+                break;
         }
         if (event.event_id === null){
             return;
