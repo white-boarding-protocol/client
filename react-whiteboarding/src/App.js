@@ -55,6 +55,7 @@ function App( ) {
     const cbSocketHasBeenClosed = () => {
         console.log("socket has been closed");
         setMessage("Socket closed.");
+        setConnectServer(true);
         setShowCanvas(false);
         setDisplayForm(false);
     }
@@ -99,22 +100,26 @@ function App( ) {
         const element = parseEventToElement(event);
         switch (event.action){
             case 0: // create
-                onNewElementAddition(element);
+                console.log("sep says new element added.", element.event_id)
+                onElementEditOrUpdate(element);
                 break;
             case 1: // edit
-                onElementUpdate(element);
+                console.log("sep says an element is edited. ", element.event_id)
+                onElementEditOrUpdate(element);
                 break;
             case 2: // delete
+                console.log("sep says an element is deleted. ", element.event_id)
                 onElementRemoval(element.event_id);
                 break;
         }
     }
 
-    const onNewElementAddition = (element) => {
-        const duplicateElement = allElements.filter( e => e.event_id === element.event_id  || e.id === element.event_id );
+    const onElementEditOrUpdate = (element) => {
+        console.log(allElements)
+        const duplicateElement = allElements.filter( e => e.event_id === element.event_id  );
         if (duplicateElement.length > 0){
             console.log(duplicateElement);
-            setAllElements( allElements.filter( e => element.event_id === e.event_id  || e.id === element.event_id ? element : e ) );
+            setAllElements( allElements.filter( e => element.event_id === e.event_id ? element : e ) );
         }else {
             setAllElements((prevState) => [...prevState, element]);
             console.log(allElements);
@@ -150,17 +155,6 @@ function App( ) {
     // canvas - new element created
     const onNewElementCreation = (element) => {
         setAllElements((prevState) => [...prevState, element]);
-    }
-
-    // canvas / interface - element updated
-    const onElementUpdate = element => {
-        console.log("---------------------------")
-        console.log(element);
-        console.log(allElements);
-        let updateList = allElements.filter( e => e.event_id !== element.event_id );
-        updateList = [...updateList, element]
-        console.log(updateList)
-        setAllElements(updateList);
     }
 
     // canvas - remove element
@@ -209,7 +203,7 @@ function App( ) {
                     onUserApprovalHandler={onUserApprovalHandler}
                     onEndRoomHandler={onEndRoomHandler}
                     onNewElementCreation = {onNewElementCreation}
-                    onElementUpdate = {onElementUpdate}
+                    onElementUpdate = {onElementEditOrUpdate}
                     cbElementRemove = {onElementRemove}
                 /> :
                 <Dashboard
