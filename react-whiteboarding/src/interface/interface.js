@@ -64,6 +64,7 @@ class Interface {
         })
     }
 
+    // draw([[1,2], [3,4]…], null, null, null)
     async draw(coordinates, color, tool, width) {
         let uuid = uuidv4();
 

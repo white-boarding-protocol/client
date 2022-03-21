@@ -112,7 +112,7 @@ const parseEventToElement = (event) => {
 
     case 2: // draw
       element.type = "pencil";
-      element.extras = event.width;
+      element.extras = event.coordinates; // [[1,2],[2,3,],[4,5],[],]
       return element;
 
     case "comment":

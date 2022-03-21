@@ -101,6 +101,8 @@ function App( ) {
 
         switch (event.action){
             case 0: // create
+                console.log("draw event from server")
+                console.log(event);
                 onNewElementAddition(element);
                 break;
             case 1: // edit

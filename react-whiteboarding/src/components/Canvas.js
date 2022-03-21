@@ -57,8 +57,37 @@ export default function Canvas(
 
         context.save();
 
+        console.log(elements);
+        const allPaths = []
+        elements.forEach((elem) => {
+            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
+            context.globalAlpha = "1";
+            if (type === null) {
+                roughCanvas.draw(roughEle);
+            }else if ( type === "image" ){
+                if (extras !== null) {
+                    var img = new Image();
+                    img.onload = function() {
+                        context.drawImage(img, x1, y1, x2, y2);
+                        context.beginPath();
+                        context.stroke();
+                    };
+                    img.src = extras;
+                }
+            }else if ( type === "note" ){
+                context.font = '20px serif';
+                context.fillText( extras, x1, y1)
+            }else if (type === "pencil"){
+                const stroke = []
+                elem.extras.map( point => {
+                    stroke.push( {clientX: point[0], clientY: point[1], transparency: "1"} )
+                })
+                allPaths.push(stroke);
+            }
+        })
+
         const drawpath = () => {
-            path.forEach((stroke, index) => {
+            allPaths.forEach((stroke, index) => {
                 context.beginPath();
 
                 stroke.forEach((point, i) => {
@@ -82,31 +111,6 @@ export default function Canvas(
 
         if (path !== undefined) drawpath();
 
-        console.log(elements);
-        elements.forEach((elem) => {
-            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
-            context.globalAlpha = "1";
-            if (type === null) {
-                roughCanvas.draw(roughEle);
-            }else if ( type === "image" ){
-                if (extras !== null) {
-                    var img = new Image();
-                    img.onload = function() {
-                        context.drawImage(img, x1, y1, x2, y2);
-                        context.beginPath();
-                        context.stroke();
-                    };
-                    img.src = extras;
-                }
-            }else if ( type === "note" ){
-                context.font = '20px serif';
-                context.fillText( extras, x1, y1)
-            }else if (type === "pencil"){
-                //todo: implement
-                console.log("to be implemented")
-            }
-        })
-
         return () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
         };
@@ -126,8 +130,8 @@ export default function Canvas(
                 setAction("sketching");
                 setIsDrawing(true);
                 const transparency = "1.0";
-                const newEle = { clientX, clientY, transparency, };
-                setPoints((state) => [...state, newEle]);
+                const newPoint = { clientX, clientY, transparency, };
+                setPoints((state) => [...state, newPoint]);
                 context.lineCap = 5;
                 context.moveTo(clientX, clientY);
                 context.beginPath();
@@ -211,8 +215,8 @@ export default function Canvas(
             case "sketching": // pencil tool
                 if (!isDrawing) return;
                 const transparency = points[points.length - 1].transparency;
-                const newEle = { clientX, clientY, transparency };
-                setPoints((state) => [...state, newEle]);
+                const newPoint = { clientX, clientY, transparency };
+                setPoints((state) => [...state, newPoint]);
                 var midPoint = midPointBtw(clientX, clientY);
                 context.quadraticCurveTo(clientX, clientY, midPoint.x, midPoint.y);
                 context.lineTo(clientX, clientY);
@@ -256,9 +260,15 @@ export default function Canvas(
 
             case "sketching": // pencil tool
                 context.closePath();
-                const element = points;
+                const listOfPoints = points.map( p => [p.clientX, p.clientY] );
+                console.log(listOfPoints);
+                serverInterface.draw(listOfPoints, null, null, null).then(msg => {
+                    const strokeElem = createElement( msg.event.event_id, clientX, clientY, null, null, "pencil", listOfPoints);
+                    onNewElementCreation(strokeElem);
+                }).catch(err => {
+                    console.error(err);
+                })
                 setPoints([]);
-                setPath((prevState) => [...prevState, element]); //tuple
                 setIsDrawing(false);
                 break;
 
