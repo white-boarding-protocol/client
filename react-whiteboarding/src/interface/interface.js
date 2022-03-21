@@ -3,7 +3,7 @@ import {v4 as uuidv4} from 'uuid';
 
 class Interface {
 
-    constructor(userID, uri, certPath, onClose, loadPreviousEvents, onRejectJoin, onUserQueue, onWhiteboardEvent, onRemoveEvent, onEditEvent) {
+    constructor(userID, uri, certPath, onClose, loadPreviousEvents, onRejectJoin, onUserQueue, onWhiteboardEvent) {
         this.userId = userID;
         this.loadPreviousEvents = loadPreviousEvents
         this.onRejectJoin = onRejectJoin

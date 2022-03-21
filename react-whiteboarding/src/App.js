@@ -78,26 +78,39 @@ function App( ) {
         setUsersInQueue((prevState) => [...prevState, user_id]);
     }
 
-    // interface - new events received
-    const cbNewEvents = (event) => {
+    // interface - events received
+    const cbWhiteboardEvent = (event) => {
         console.log(event);
         if (event.event_id === null){
             return;
         }
         const element = parseEventToElement(event);
-        console.log(element);
+
+        switch (event.action){
+            case 0: // create
+                onNewElementAddition(element);
+                break;
+            case 1: // edit
+                onNewElementAddition(element);
+                break;
+            case 2: // delete
+                onElementRemoval(element.event_id);
+                break;
+        }
+    }
+
+    const onNewElementAddition = (element) => {
         const duplicateElement = allElements.filter( e => e.event_id === element.event_id);
         if (duplicateElement.length > 0){
             console.log(duplicateElement);
-            setAllElements( allElements.filter( e => event.event_id === e.event_id ? element : e ) );
+            setAllElements( allElements.filter( e => element.event_id === e.event_id ? element : e ) );
         }else {
             setAllElements((prevState) => [...prevState, element]);
             console.log(allElements);
         }
     }
 
-    // interface - events removed
-    const cbRemoveEvent = (event_id) => {
+    const onElementRemoval = (event_id) => {
         setAllElements( allElements.filter( e => e.event_id !== event_id ) );
     }
 
@@ -153,9 +166,7 @@ function App( ) {
                     cbApprovalRequest(false, msg);
                 },
                 cbUserWantsToJoin,
-                cbNewEvents,
-                cbRemoveEvent,
-                cbNewEvents
+                cbWhiteboardEvent
             );
             serverInterface.connect().then(msg => {
                 console.log("Connection to server: ", msg);

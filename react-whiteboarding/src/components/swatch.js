@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Swatch({ setToolType, undoAction, downloadCanvas }) {
+export default function Swatch({ setToolType, undoAction, downloadCanvas, leaveRoom }) {
   return (
     <div>
       <div className="row">
