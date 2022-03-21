@@ -83,7 +83,6 @@ function App( ) {
 
     // interface - events received
     const cbWhiteboardEvent = (event) => {
-        console.log(event);
         switch (event.type) {
             case 1: // room events
                 if (event.room_event_type === 3) { // host ended room
@@ -98,15 +97,12 @@ function App( ) {
             return;
         }
         const element = parseEventToElement(event);
-
         switch (event.action){
             case 0: // create
-                console.log("draw event from server")
-                console.log(event);
                 onNewElementAddition(element);
                 break;
             case 1: // edit
-                onNewElementAddition(element);
+                onElementUpdate(element);
                 break;
             case 2: // delete
                 onElementRemoval(element.event_id);
@@ -156,9 +152,10 @@ function App( ) {
         setAllElements((prevState) => [...prevState, element]);
     }
 
-    // canvas - element updated
+    // canvas / interface - element updated
     const onElementUpdate = element => {
         const updateList = []
+        console.log(allElements)
         allElements.forEach( e => {
             if (e.event_id === element.event_id){
                 updateList.push(element);
@@ -166,6 +163,9 @@ function App( ) {
                 updateList.push(e);
             }
         })
+        if (updateList.length <= 0){
+            updateList.push(element);
+        }
         setAllElements(updateList);
     }
 
