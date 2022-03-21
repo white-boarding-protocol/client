@@ -230,13 +230,15 @@ class Interface {
     }
 
 
-    async addImage(x, y, data) {
+    async addImage(x, y, data, height, width) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
             "type": 4,
             "user_id": this.userId,
             "room_id": this.roomId,
+            "height": height,
+            "width": width,
             "x_coordinate": x,
             "y_coordinate": y,
             "action": 0,
