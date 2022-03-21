@@ -44,7 +44,6 @@ function App( ) {
              console.log("Create room response: ", msg);
              setShowCanvas(true);
              setIsHost(true);
-             setAllElements([])
          }).catch((msg) => {
              setMessage("Error creating room, " + msg);
              console.log(msg)
@@ -83,6 +82,7 @@ function App( ) {
 
     // interface - events received
     const cbWhiteboardEvent = (event) => {
+        console.log(allElements)
         switch (event.type) {
             case 1: // room events
                 if (event.room_event_type === 3) { // host ended room
@@ -154,18 +154,12 @@ function App( ) {
 
     // canvas / interface - element updated
     const onElementUpdate = element => {
-        const updateList = []
-        console.log(allElements)
-        allElements.forEach( e => {
-            if (e.event_id === element.event_id){
-                updateList.push(element);
-            }else {
-                updateList.push(e);
-            }
-        })
-        if (updateList.length <= 0){
-            updateList.push(element);
-        }
+        console.log("---------------------------")
+        console.log(element);
+        console.log(allElements);
+        let updateList = allElements.filter( e => e.event_id !== element.event_id );
+        updateList = [...updateList, element]
+        console.log(updateList)
         setAllElements(updateList);
     }
 
