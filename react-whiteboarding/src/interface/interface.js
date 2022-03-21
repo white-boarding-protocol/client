@@ -321,6 +321,19 @@ class Interface {
 
         return this.whiteboarding.setPromise(uuid)
     }
+
+
+    async disconnect() {
+        let uuid = uuidv4();
+
+        await this.whiteboarding.sendData({
+            "user_id": this.userId,
+            "message": "fin",
+            "uuid": uuid
+        });
+
+        return this.whiteboarding.setPromise(uuid)
+    }
 }
 
 export default Interface
