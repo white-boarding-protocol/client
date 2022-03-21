@@ -186,6 +186,7 @@ function App( ) {
     })
 
     const map1 = new Map();
+    console.log(allElements);
     allElements.forEach( e => {
         if (e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
             const existingVal = map1.get(e.event_id);
@@ -195,7 +196,6 @@ function App( ) {
             map1.set(e.event_id, e);
         }
     })
-    console.log(map1)
 
     return (
     <div className="App">

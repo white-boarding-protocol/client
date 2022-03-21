@@ -58,7 +58,26 @@ export default function Canvas(
         context.save();
 
         console.log(elements);
-        const allPaths = []
+
+        const drawpath = (stroke) => {
+            context.beginPath();
+
+            stroke.forEach((point, i) => {
+                var midPoint = midPointBtw(point.clientX, point.clientY);
+
+                context.quadraticCurveTo(
+                    point.clientX,
+                    point.clientY,
+                    midPoint.x,
+                    midPoint.y
+                );
+                context.lineTo(point.clientX, point.clientY);
+                context.stroke();
+            });
+            context.closePath();
+            context.save();
+        };
+
         elements.forEach((elem) => {
             const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
             context.globalAlpha = "1";
@@ -82,34 +101,11 @@ export default function Canvas(
                 elem.extras.map( point => {
                     stroke.push( {clientX: point[0], clientY: point[1], transparency: "1"} )
                 })
-                allPaths.push(stroke);
+                drawpath(stroke);
             }
         })
 
-        const drawpath = () => {
-            allPaths.forEach((stroke, index) => {
-                context.beginPath();
-
-                stroke.forEach((point, i) => {
-                    var midPoint = midPointBtw(point.clientX, point.clientY);
-
-                    context.quadraticCurveTo(
-                        point.clientX,
-                        point.clientY,
-                        midPoint.x,
-                        midPoint.y
-                    );
-                    context.lineTo(point.clientX, point.clientY);
-                    context.stroke();
-                });
-                context.closePath();
-                context.save();
-            });
-        };
-
         const roughCanvas = rough.canvas(canvas);
-
-        if (path !== undefined) drawpath();
 
         return () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -269,15 +265,14 @@ export default function Canvas(
             case "sketching": // pencil tool
                 context.closePath();
                 const listOfPoints = points.map( p => [p.clientX, p.clientY] );
-                console.log(listOfPoints);
                 serverInterface.draw(listOfPoints, null, null, null).then(msg => {
                     const strokeElem = createElement( msg.event.event_id, clientX, clientY, null, null, "pencil", listOfPoints);
+                    setPoints([]);
+                    setIsDrawing(false);
                     onNewElementCreation(strokeElem);
                 }).catch(err => {
                     console.error(err);
                 })
-                setPoints([]);
-                setIsDrawing(false);
                 break;
 
             case "erasing":
