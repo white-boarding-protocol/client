@@ -1,7 +1,7 @@
 import rough from "roughjs/bundled/rough.esm";
 const gen = rough.generator();
 
-function createElement(id, x1, y1, x2, y2, type, extras) {
+function createElement(id, x1, y1, x2, y2, type, extras, event_id) {
   const roughEle = gen.line(x1, y1, x2, y2);
   if (type === "image" ){
     y1 = y1 - 30; // for some reason, elements are created at extra +30 y offset. this hacky fix is to mitigate that.
@@ -12,7 +12,7 @@ function createElement(id, x1, y1, x2, y2, type, extras) {
     x2 = x1 + 20;
     y2 = y1 + 50;
   }
-  return { id, x1, y1, x2, y2, roughEle, type, extras };
+  return { event_id, id, x1, y1, x2, y2, roughEle, type, extras };
 }
 
 const midPointBtw = (p1, p2) => {

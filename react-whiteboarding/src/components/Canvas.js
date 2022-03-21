@@ -225,12 +225,9 @@ export default function Canvas(
 
             case "selection":
                 if (selectedElement !== null){
-                    const {id, x1, y1, type, extras} = selectedElement
+                    const {type} = selectedElement
                     if (type === "image" || type === "note"){
                         setSelectedToDragElement(selectedElement);
-                        if ( Math.abs(clientX-x1) <= 20 && Math.abs(clientY-y1) <= 20 ){
-                            return;
-                        }
                     }
                 }
                 break;
@@ -277,11 +274,10 @@ export default function Canvas(
                 break;
 
             case "selection":
-
                 if (selectedToDragElement !== null){
-                    const {event_id, type, extras} = selectedToDragElement
+                    const {event_id, type, extras, x2, y2} = selectedToDragElement
                     if (type === "image" || type === "note"){
-                        const updatedElement = createElement(event_id, clientX, clientY, clientX, clientY, type, extras );
+                        const updatedElement = createElement(null, clientX, clientY, x2, y2, type, extras, event_id);
                         onElementUpdate(updatedElement);
                         // todo: call server
                     }
@@ -343,9 +339,10 @@ export default function Canvas(
         for(let i = elements.length - 1; i >= 0; i--){
             const element = elements[i];
             const { x1, y1, x2, y2, type } = element;
-            if ( clickX >= x1 && clickX <= x2 && clickY >=y1 && clickY <= y2 ){
-                if ( filterType === null || filterType === type)
+            if ( clickX >= x1 && clickX <= (x1+x2) && clickY >=y1 && clickY <= (y1+y2) ){
+                if ( filterType === null || filterType === type) {
                     return element;
+                }
             }
         }
         return null;

@@ -115,10 +115,10 @@ function App( ) {
     }
 
     const onNewElementAddition = (element) => {
-        const duplicateElement = allElements.filter( e => e.event_id === element.event_id);
+        const duplicateElement = allElements.filter( e => e.event_id === element.event_id  || e.id === element.event_id );
         if (duplicateElement.length > 0){
             console.log(duplicateElement);
-            setAllElements( allElements.filter( e => element.event_id === e.event_id ? element : e ) );
+            setAllElements( allElements.filter( e => element.event_id === e.event_id  || e.id === element.event_id ? element : e ) );
         }else {
             setAllElements((prevState) => [...prevState, element]);
             console.log(allElements);
@@ -126,7 +126,7 @@ function App( ) {
     }
 
     const onElementRemoval = (event_id) => {
-        setAllElements( allElements.filter( e => e.event_id !== event_id ) );
+        setAllElements( allElements.filter( e => e.event_id !== event_id || e.id !== event_id ) );
     }
 
     // canvas - user approve or deny
@@ -158,7 +158,15 @@ function App( ) {
 
     // canvas - element updated
     const onElementUpdate = element => {
-        setAllElements( allElements.map( e => e.event_id === element.event_id ? element : e ) );
+        const updateList = []
+        allElements.forEach( e => {
+            if (e.event_id === element.event_id){
+                updateList.push(element);
+            }else {
+                updateList.push(e);
+            }
+        })
+        setAllElements(updateList);
     }
 
     // canvas - remove element
