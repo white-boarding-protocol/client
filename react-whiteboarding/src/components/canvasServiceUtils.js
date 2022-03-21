@@ -101,6 +101,8 @@ const parseEventToElement = (event) => {
     case 4: // image
       element.type = "image";
       element.extras = event.data;
+      element.y2 = event.height;
+      element.x2 = event.width;
       return element;
 
     case 3: // sticky note

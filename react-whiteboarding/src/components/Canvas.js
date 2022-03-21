@@ -135,7 +135,8 @@ export default function Canvas(
                 uploadImage( (base64EncImage) => {
                     const imgEnc = 'data:image/gif;base64,'+base64EncImage;
                     const imgElem = createElement( elements.length, clientX, clientY, null, null, "image", imgEnc)
-                    serverInterface.addImage(clientX, clientY, imgEnc).then( msg => {
+                    const {x1, x2, y1, y2} = imgElem;
+                    serverInterface.addImage(x1, y1, imgEnc, y2, x2).then( msg => {
                         imgElem.event_id = msg.event.event_id;
                         onNewElementCreation(imgElem);
                     } ).catch( err => {
