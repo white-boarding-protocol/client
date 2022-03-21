@@ -279,7 +279,13 @@ export default function Canvas(
                     if (type === "image" || type === "note"){
                         const updatedElement = createElement(null, clientX, clientY, x2, y2, type, extras, event_id);
                         onElementUpdate(updatedElement);
-                        // todo: call server
+                        switch (type){
+                            case "note":
+                                serverInterface.editStickNote(event_id, extras, clientX, clientY);
+                                break;
+                            case "image":
+                                break;
+                        }
                     }
                 }else if (action === "selection"){
                     const selectedItem = fetchSelectedElement(clientX, clientY, elements);
