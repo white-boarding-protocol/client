@@ -66,7 +66,7 @@ function App( ) {
     const cbApprovalRequest = (approved, message) => {
         const {events} = message;
         if (approved){
-            events.forEach( e => onNewElementCreation(e) );
+            events.forEach( e => onNewElementCreation( parseEventToElement(e) ) );
             console.log("host approved join request.", message);
             setMessage("Host approved join request.");
             setShowCanvas(true);
