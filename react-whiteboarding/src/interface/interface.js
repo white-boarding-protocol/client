@@ -266,7 +266,7 @@ class Interface {
         return this.whiteboarding.setPromise(uuid)
     }
 
-    async editImage(eventId) {
+    async editImage(eventId, newX, newY, data, height, width) {
         let uuid = uuidv4();
 
         await this.whiteboarding.sendData({
@@ -275,6 +275,11 @@ class Interface {
             "action": 1,
             "user_id": this.userId,
             "room_id": this.roomId,
+            "x_coordinate": newX,
+            "y_coordinate": newY,
+            "height": height,
+            "width": width,
+            "data": data,
             "uuid": uuid
         });
 
