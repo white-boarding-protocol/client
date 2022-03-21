@@ -185,6 +185,10 @@ function App( ) {
     const map1 = new Map();
     allElements.forEach( e => {
         if (e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
+            const existingVal = map1.get(e.event_id);
+            if(existingVal && e.type === "image") {
+                e.extras = existingVal.extras;
+            }
             map1.set(e.event_id, e);
         }
     })

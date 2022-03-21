@@ -295,7 +295,7 @@ export default function Canvas(
                                 serverInterface.editStickNote(event_id, extras, clientX, clientY);
                                 break;
                             case "image":
-                                serverInterface.editImage(event_id, clientX, clientY, extras, y2, x2);
+                                serverInterface.editImage(event_id, clientX, clientY, y2, x2);
                                 break;
                         }
                     }
