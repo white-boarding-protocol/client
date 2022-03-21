@@ -157,7 +157,18 @@ export default function Canvas(
                 const itemToErase = fetchSelectedElement(clientX, clientY, elements)
                 if (itemToErase !== null){
                     onElementRemove(itemToErase.event_id);
-                    //todo: remove element form server
+                    switch (itemToErase.type){
+                        case "image":
+                            serverInterface.removeImage(itemToErase.event_id);
+                            break;
+                        case "note":
+                            serverInterface.removeStickNote(itemToErase.event_id);
+                            break;
+                        case "pencil":
+                            serverInterface.removeDraw(itemToErase.event_id);
+                            break;
+
+                    }
                 }
                 break;
 

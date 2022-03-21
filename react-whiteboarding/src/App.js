@@ -23,6 +23,8 @@ function App( ) {
     const [isHost, setIsHost] = useState(false);
     const [roomEnded, setRoomEnded] = useState(false);
 
+    const [deletedEventIds, setDeletedEventIds] = useState([]);
+
     // display form - join button handler
     const joinRoomHandler = (roomId) => {
         setDisplayForm(false);
@@ -115,19 +117,11 @@ function App( ) {
     }
 
     const onElementEditOrUpdate = (element) => {
-        console.log(allElements)
-        const duplicateElement = allElements.filter( e => e.event_id === element.event_id  );
-        if (duplicateElement.length > 0){
-            console.log(duplicateElement);
-            setAllElements( allElements.filter( e => element.event_id === e.event_id ? element : e ) );
-        }else {
-            setAllElements((prevState) => [...prevState, element]);
-            console.log(allElements);
-        }
+       setAllElements((prevState) => [...prevState, element]);
     }
 
     const onElementRemoval = (event_id) => {
-        setAllElements( allElements.filter( e => e.event_id !== event_id || e.id !== event_id ) );
+        setDeletedEventIds( (prevState => [...prevState, event_id] ) )
     }
 
     // canvas - user approve or deny
@@ -188,6 +182,14 @@ function App( ) {
         }
     })
 
+    const map1 = new Map();
+    allElements.forEach( e => {
+        if (e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
+            map1.set(e.event_id, e);
+        }
+    })
+    console.log(map1)
+
     return (
     <div className="App">
         {
@@ -199,12 +201,12 @@ function App( ) {
                     roomEnded = {roomEnded}
                     serverInterface={serverInterface}
                     queuedUsers={usersInQueue}
-                    elements = {allElements}
+                    elements = { Array.from(map1.values()) }
                     onUserApprovalHandler={onUserApprovalHandler}
                     onEndRoomHandler={onEndRoomHandler}
                     onNewElementCreation = {onNewElementCreation}
                     onElementUpdate = {onElementEditOrUpdate}
-                    cbElementRemove = {onElementRemove}
+                    onElementRemove = {onElementRemove}
                 /> :
                 <Dashboard
                     joinBtnHandler={joinRoomHandler}
