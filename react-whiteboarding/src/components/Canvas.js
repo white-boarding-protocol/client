@@ -294,12 +294,16 @@ export default function Canvas(
                     }
                 }else if (action === "selection"){
                     const selectedItem = fetchSelectedElement(clientX, clientY, elements);
-                    console.log(selectedItem)
                     if (selectedItem !== null && selectedItem.type === "note"){
                         const noteData = prompt("Update note data:", selectedItem.extras)
                         selectedItem.extras = noteData
                         onElementUpdate(selectedItem);
                         serverInterface.editStickNote(selectedItem.event_id, noteData, clientX, clientY);
+                    }else if (selectedItem !== null && selectedItem.type === "image"){
+                        const comment = prompt("Add comment to this image: ")
+                        if (comment !== null && comment !== "" ) {
+                            serverInterface.addComment(comment, selectedItem.event_id);
+                        }
                     }
                 }
                 setSelectedToDragElement(null);
