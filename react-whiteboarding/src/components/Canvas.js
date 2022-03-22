@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from "react";
 
-import EventAction from "../constants";
-import { isEqual, omit } from "lodash";
 import Swatch from "./swatch";
 import rough from "roughjs/bundled/rough.esm";
 
 import {
     createElement,
     midPointBtw,
-    adjustElementCoordinates,
     uploadImage,
     downloadCanvas,
-    clearCircle,
-    showEraser} from "./canvasServiceUtils";
+    clearCircle
+} from "./canvasServiceUtils";
 
-const gen = rough.generator();
 
 /**
  * Canvas componenet - to be integrated by bipin
@@ -79,7 +75,7 @@ export default function Canvas(
         };
 
         elements.forEach((elem) => {
-            const { event_id, x1, y1, x2, y2, roughEle, type, extras } = elem;
+            const { x1, y1, x2, y2, roughEle, type, extras } = elem;
             context.globalAlpha = "1";
             if (type === null) {
                 roughCanvas.draw(roughEle);
@@ -98,9 +94,9 @@ export default function Canvas(
                 context.fillText( extras, x1, y1)
             }else if (type === "pencil"){
                 const stroke = []
-                elem.extras.map( point => {
+                elem.extras.map( point =>
                     stroke.push( {clientX: point[0], clientY: point[1], transparency: "1"} )
-                })
+                )
                 drawpath(stroke);
             }
         })
@@ -120,7 +116,6 @@ export default function Canvas(
         clientY = clientY - 50;
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
-        const id = elements.length; // todo: generate element id properly
 
         switch (toolType){
             case "pencil":
@@ -164,7 +159,8 @@ export default function Canvas(
                         case "pencil":
                             serverInterface.removeDraw(itemToErase.event_id);
                             break;
-
+                        default:
+                            break;
                     }
                 }
                 break;
@@ -252,10 +248,6 @@ export default function Canvas(
         }
 
     };
-
-    const findElement = event_id => {
-        return elements.filter( e => e.event_id === event_id )
-    }
 
     const handleMouseUp = (e) => {
         const canvas = document.getElementById("canvas");
@@ -348,11 +340,6 @@ export default function Canvas(
         image.src = imageElement.extras;
     }
 
-    const handleDoubleClick = (e) => {
-        const { clientX, clientY } = e;
-
-    }
-
     const fetchSelectedElement = (clickX, clickY, elements, filterType = null) => {
         for(let i = elements.length - 1; i >= 0; i--){
             const element = elements[i];
@@ -408,7 +395,6 @@ export default function Canvas(
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
-                    onDoubleClick={handleDoubleClick}
             > Canvas </canvas>
         </div>
     );

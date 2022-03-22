@@ -6,7 +6,7 @@ import Canvas from "./components/Canvas";
 import Interface from "./interface/interface";
 import {v4 as uuidv4} from 'uuid';
 import Dashboard from "./components/Dashboard";
-import {parseEventToElement, parseElementToEvent} from "./components/canvasServiceUtils";
+import {parseEventToElement} from "./components/canvasServiceUtils";
 
 
 let serverInterface = null;
@@ -98,6 +98,8 @@ function App( ) {
             case 6:
                 setDeletedEventIds(prevState => [...prevState, event.last_event_id])
                 break;
+            default:
+                break;
         }
         if (event.event_id === null){
             return;
@@ -115,6 +117,8 @@ function App( ) {
             case 2: // delete
                 console.log("sep says an element is deleted. ", element.event_id)
                 onElementRemoval(element.event_id);
+                break;
+            default:
                 break;
         }
     }
@@ -161,7 +165,6 @@ function App( ) {
 
     useEffect(() => {
         if (connectServer || serverInterface === null){
-            console.log("current user id ", currentUserId);
             serverInterface = new Interface(
                 currentUserId, "wss://SEP:5555", './cert/cert.pem',
                 cbSocketHasBeenClosed,
@@ -177,7 +180,7 @@ function App( ) {
                 cbWhiteboardEvent
             );
             serverInterface.connect().then(msg => {
-                console.log("Connection to server: ", msg);
+                console.log("Connected to server.");
             }).catch(err => {
                 console.log(err);
             })
@@ -186,7 +189,6 @@ function App( ) {
     })
 
     const map1 = new Map();
-    console.log(allElements);
     allElements.forEach( e => {
         if (e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
             const existingVal = map1.get(e.event_id);

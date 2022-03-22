@@ -21,7 +21,7 @@ const midPointBtw = (p1, p2) => {
 };
 
 const adjustElementCoordinates = (element) => {
-  const { type, x1, y1, x2, y2 } = element;
+  const { x1, y1, x2, y2 } = element;
   if (x1 < x2 || (x1 === x2 && y1 < y2)) {
     return { x1, y1, x2, y2 };
   } else {

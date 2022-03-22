@@ -79,6 +79,8 @@ class Whiteboarding {
                 this.storage[data_obj.uuid].rej(data_obj.message)
                 delete this.storage[data_obj.uuid]
                 break;
+            default:
+                break;
         }
     }
 
