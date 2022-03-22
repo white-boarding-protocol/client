@@ -107,15 +107,12 @@ function App( ) {
         const element = parseEventToElement(event);
         switch (event.action){
             case 0: // create
-                console.log("sep says new element added.", element.event_id)
                 onElementEditOrUpdate(element);
                 break;
             case 1: // edit
-                console.log("sep says an element is edited. ", element.event_id)
                 onElementEditOrUpdate(element);
                 break;
             case 2: // delete
-                console.log("sep says an element is deleted. ", element.event_id)
                 onElementRemoval(element.event_id);
                 break;
             default:
@@ -190,7 +187,7 @@ function App( ) {
 
     const map1 = new Map();
     allElements.forEach( e => {
-        if (e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
+        if ( e !== null && e.event_id !== null && !deletedEventIds.includes(e.event_id) ){
             const existingVal = map1.get(e.event_id);
             if(existingVal && e.type === "image") {
                 e.extras = existingVal.extras;
