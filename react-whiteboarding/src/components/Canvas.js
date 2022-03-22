@@ -285,14 +285,13 @@ export default function Canvas(
                 if (selectedToDragElement !== null){
                     const {event_id, type, extras, x2, y2} = selectedToDragElement
                     if (type === "image" || type === "note"){
-                        const updatedElement = createElement(null, clientX, clientY, x2, y2, type, extras, event_id);
+                        const updatedElement = createElement(event_id, clientX, clientY, x2, y2, type, extras);
                         onElementUpdate(updatedElement);
                         switch (type){
                             case "note":
                                 serverInterface.editStickNote(event_id, extras, clientX, clientY);
                                 break;
                             case "image":
-                                console.log("updating image : ", event_id);
                                 serverInterface.editImage(event_id, clientX, clientY, y2, x2).then(msg => {
                                     console.log(msg)
                                 }).catch(err => {
@@ -305,11 +304,10 @@ export default function Canvas(
                     const selectedItem = fetchSelectedElement(clientX, clientY, elements);
                     console.log(selectedItem)
                     if (selectedItem !== null && selectedItem.type === "note"){
-                        var noteData = prompt("Update note data:", selectedItem.extras)
-                        if (noteData === null) return
+                        const noteData = prompt("Update note data:", selectedItem.extras)
                         selectedItem.extras = noteData
                         onElementUpdate(selectedItem);
-                        // todo: call server
+                        serverInterface.editStickNote(selectedItem.event_id, noteData, clientX, clientY);
                     }
                 }
                 setSelectedToDragElement(null);
